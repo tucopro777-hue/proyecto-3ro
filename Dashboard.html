@@ -895,26 +895,17 @@ async function saveNuevaCategoria(nombre, userId) {
 
 /* ──────────────────────────────────────────
    8. GUARDAR MOVIMIENTO EN SUPABASE
-   Tabla: movimientos_diarios
-     - id           (uuid, PK auto)
-     - user_id      (uuid, FK)
-     - tipo         ('gasto' | 'ingreso')
-     - descripcion  (text)
-     - monto        (numeric)
-     - categoria_id (uuid, FK → categorias)
-     - es_hormiga   (boolean)
-     - fecha        (timestamptz, default now())
 ────────────────────────────────────────── */
 async function saveMovimiento({ userId, tipo, descripcion, monto, categoriaId, esHormiga }) {
   const { data, error } = await db
     .from('movimientos_diarios')
     .insert([{
-      user_id:      userId,
-      tipo,
+      id_usuario:   userId,      // SQL: id_usuario | JS: userId
+      tipo_movimiento: tipo === 'gasto' ? 'Gasto' : 'Ingreso', // SQL usa Enum 'Gasto'/'Ingreso'
       descripcion:  descripcion.trim(),
-      monto:        parseFloat(monto),
-      categoria_id: categoriaId,
-      es_hormiga:   esHormiga,
+      monto_real:   parseFloat(monto), // SQL: monto_real | JS: monto
+      id_categoria: categoriaId,  // SQL: id_categoria | JS: categoriaId
+      es_ocasional: esHormiga,    // SQL: es_ocasional | JS: esHormiga
     }])
     .select()
     .single();
@@ -1159,15 +1150,20 @@ async function refreshMovimientos() {
   const { data, error } = await db
     .from('movimientos_diarios')
     .select(`
-      id, tipo, descripcion, monto, es_hormiga, fecha,
-      categorias ( nombre )
+      id_movimiento, 
+      tipo_movimiento, 
+      descripcion, 
+      monto_real, 
+      es_ocasional, 
+      fecha_hora,
+      categorias ( nombre_categoria )
     `)
-    .eq('user_id', currentUserId)
-    .order('fecha', { ascending: false })
+    .eq('id_usuario', currentUserId)
+    .order('fecha_hora', { ascending: false })
     .limit(10);
 
   if (error) {
-    console.error('[FinSight] Error al cargar movimientos:', error.message);
+    console.error('[FinSight] Error:', error.message);
     return;
   }
 
@@ -1175,26 +1171,27 @@ async function refreshMovimientos() {
   txList.innerHTML = '';
 
   if (!data || data.length === 0) {
-    txList.innerHTML = `<div style="padding:16px;text-align:center;color:var(--muted);font-size:13px">Sin movimientos aún. ¡Añade el primero!</div>`;
+    txList.innerHTML = `<div style="padding:16px;text-align:center;color:var(--muted);font-size:13px">Sin movimientos aún.</div>`;
     return;
   }
 
   data.forEach(t => {
-    const signo     = t.tipo === 'gasto' ? '−' : '+';
-    const abs       = Math.abs(t.monto).toFixed(2);
-    const catNombre = t.categorias?.nombre || 'Sin categoría';
-    const fecha     = new Date(t.fecha).toLocaleDateString('es-BO', { day: '2-digit', month: 'short' });
-    const emoji     = t.tipo === 'gasto' ? '💸' : '💰';
-    const tag       = t.es_hormiga ? `<span class="tx-tag extra">Hormiga</span>` : '';
+    const esGasto  = t.tipo_movimiento === 'Gasto';
+    const signo    = esGasto ? '−' : '+';
+    const abs      = Math.abs(t.monto_real).toFixed(2);
+    const cat      = t.categorias?.nombre_categoria || 'Sin categoría';
+    const fecha    = new Date(t.fecha_hora).toLocaleDateString('es-BO', { day: '2-digit', month: 'short' });
+    const tag      = t.es_ocasional ? `<span class="tx-tag extra">Ocasional</span>` : '';
+    
     txList.innerHTML += `
       <div class="tx-row">
-        <div class="tx-icon" style="background:rgba(255,255,255,0.05)">${emoji}</div>
+        <div class="tx-icon" style="background:rgba(255,255,255,0.05)">${esGasto ? '💸' : '💰'}</div>
         <div class="tx-info">
           <div class="tx-name">${t.descripcion}</div>
-          <div class="tx-date">${catNombre} · ${fecha}</div>
+          <div class="tx-date">${cat} · ${fecha}</div>
         </div>
         ${tag}
-        <div class="tx-amount ${t.tipo}">${signo} Bs. ${abs}</div>
+        <div class="tx-amount ${esGasto ? 'gasto' : 'ingreso'}">${signo} Bs. ${abs}</div>
       </div>`;
   });
 }
