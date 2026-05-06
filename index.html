@@ -3,510 +3,265 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FinFlow — Acceso</title>
-
-  <!-- Tailwind CSS vía CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Supabase JS Client vía CDN -->
+  <title>FinSight — Acceso</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Google Fonts: DM Serif Display + DM Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
-
-  <script>
-    /* ─── Tailwind: paleta y tipografía personalizadas ─── */
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            display: ['"DM Serif Display"', 'serif'],
-            mono:    ['"DM Mono"', 'monospace'],
-          },
-          colors: {
-            canvas:  '#080c12',
-            surface: '#0f1520',
-            card:    '#131d2e',
-            border:  '#1e2d45',
-            accent:  '#00d4ff',
-            'accent-dim': '#0099bb',
-            muted:   '#4a6080',
-            text:    '#c8d8e8',
-          },
-          boxShadow: {
-            'glow-accent': '0 0 30px 0 rgba(0,212,255,0.15)',
-            'glow-btn':    '0 0 20px 0 rgba(0,212,255,0.3)',
-          },
-        }
-      }
-    };
-  </script>
-
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <style>
-    /* ─── Variables & base ─── */
-    *, *::before, *::after { box-sizing: border-box; }
-
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:      #0b0e14; --bg2: #111520; --bg3: #181e2e; --card: #161b28;
+      --border:  rgba(255,255,255,0.07);
+      --accent:  #c8f064; --accent2: #4af4c2; --accent3: #f4a24a; --danger: #f46060;
+      --text:    #e8ecf5; --muted: #6b7494; --muted2: #3d4460;
+    }
     body {
-      background-color: #080c12;
-      color: #c8d8e8;
-      font-family: 'DM Mono', monospace;
-      min-height: 100vh;
-      overflow-x: hidden;
+      background: var(--bg); color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      padding: 20px; overflow-x: hidden;
     }
-
-    /* ─── Rejilla de fondo (grid lines) ─── */
-    .bg-grid {
-      position: fixed;
-      inset: 0;
+    body::before {
+      content: ''; position: fixed; inset: 0;
       background-image:
-        linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
-      background-size: 48px 48px;
-      pointer-events: none;
-      z-index: 0;
+        radial-gradient(ellipse 70% 50% at 15% -5%,  rgba(200,240,100,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 90% 105%, rgba(74,244,194,0.06)  0%, transparent 55%),
+        linear-gradient(rgba(200,240,100,0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(200,240,100,0.018) 1px, transparent 1px);
+      background-size: auto, auto, 48px 48px, 48px 48px;
+      pointer-events: none; z-index: 0;
     }
-
-    /* ─── Blob de luz ambiental ─── */
-    .ambient-blob {
-      position: fixed;
-      width: 600px;
-      height: 600px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(0,212,255,0.06) 0%, transparent 70%);
-      top: -150px;
-      right: -150px;
-      pointer-events: none;
-      z-index: 0;
-      animation: float 8s ease-in-out infinite;
+    .page-wrap {
+      position: relative; z-index: 1;
+      display: grid; grid-template-columns: 1fr 420px;
+      gap: 56px; width: 100%; max-width: 900px; align-items: center;
     }
-    .ambient-blob-2 {
-      position: fixed;
-      width: 400px;
-      height: 400px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(0,80,200,0.05) 0%, transparent 70%);
-      bottom: -100px;
-      left: -100px;
-      pointer-events: none;
-      z-index: 0;
-      animation: float 10s ease-in-out infinite reverse;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0px) scale(1); }
-      50%       { transform: translateY(-30px) scale(1.05); }
-    }
-
-    /* ─── Card del formulario ─── */
-    .login-card {
-      background: linear-gradient(145deg, #131d2e 0%, #0f1520 100%);
-      border: 1px solid #1e2d45;
-      border-radius: 20px;
-      box-shadow:
-        0 0 0 1px rgba(0,212,255,0.05),
-        0 40px 80px rgba(0,0,0,0.6),
-        inset 0 1px 0 rgba(255,255,255,0.04);
-      animation: slideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
-    }
-
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(32px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ─── Inputs ─── */
-    .ff-input {
-      width: 100%;
-      background: #080c12;
-      border: 1px solid #1e2d45;
-      border-radius: 10px;
-      color: #c8d8e8;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.875rem;
-      padding: 0.75rem 1rem;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .ff-input::placeholder { color: #4a6080; }
-    .ff-input:focus {
-      border-color: #00d4ff;
-      box-shadow: 0 0 0 3px rgba(0,212,255,0.1);
-    }
-
-    /* ─── Botón primario ─── */
-    .btn-primary {
-      width: 100%;
-      background: linear-gradient(135deg, #00d4ff 0%, #0099bb 100%);
-      color: #080c12;
-      font-family: 'DM Mono', monospace;
-      font-weight: 500;
-      font-size: 0.875rem;
-      letter-spacing: 0.05em;
-      padding: 0.8rem 1.5rem;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
-    }
-    .btn-primary:hover  { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 0 20px rgba(0,212,255,0.3); }
-    .btn-primary:active { transform: translateY(0); opacity: 1; }
-    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-    /* ─── Botón secundario (registro) ─── */
-    .btn-secondary {
-      width: 100%;
-      background: transparent;
-      color: #00d4ff;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.875rem;
-      letter-spacing: 0.03em;
-      padding: 0.75rem 1.5rem;
-      border: 1px solid #1e2d45;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background 0.2s, border-color 0.2s, transform 0.15s;
-    }
-    .btn-secondary:hover {
-      background: rgba(0,212,255,0.06);
-      border-color: rgba(0,212,255,0.35);
-      transform: translateY(-1px);
-    }
-    .btn-secondary:active { transform: translateY(0); }
-
-    /* ─── Divider ─── */
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      color: #4a6080;
-      font-size: 0.7rem;
-      letter-spacing: 0.12em;
-    }
-    .divider::before,
-    .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: #1e2d45;
-    }
-
-    /* ─── Badge del logo ─── */
-    .logo-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
+    /* ── Branding ── */
+    .brand-panel { padding: 8px 0; }
+    .logo-badge { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 36px; }
     .logo-icon {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, #00d4ff, #0055a4);
-      border-radius: 9px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-      box-shadow: 0 0 18px rgba(0,212,255,0.25);
+      width: 40px; height: 40px; background: var(--accent); border-radius: 11px;
+      display: grid; place-items: center; box-shadow: 0 0 22px rgba(200,240,100,0.3);
     }
-
-    /* ─── Alerta de error / éxito ─── */
-    .alert {
-      border-radius: 8px;
-      padding: 0.65rem 1rem;
-      font-size: 0.8rem;
-      letter-spacing: 0.02em;
-      display: none;
+    .logo-icon svg { width: 22px; height: 22px; }
+    .logo-name { font-family: 'DM Serif Display', serif; font-size: 24px; color: var(--text); letter-spacing: -0.5px; }
+    .logo-name span { color: var(--accent); }
+    .brand-headline { font-family: 'DM Serif Display', serif; font-size: 44px; line-height: 1.15; color: var(--text); letter-spacing: -1px; margin-bottom: 18px; }
+    .brand-headline em { color: var(--accent); font-style: normal; }
+    .brand-desc { font-size: 14px; color: var(--muted); line-height: 1.75; margin-bottom: 36px; max-width: 340px; }
+    .features { display: flex; flex-direction: column; gap: 16px; }
+    .feature-item { display: flex; align-items: flex-start; gap: 12px; }
+    .feature-dot { width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0; display: grid; place-items: center; font-size: 14px; margin-top: 1px; }
+    .feature-dot.g { background: rgba(200,240,100,0.12); }
+    .feature-dot.t { background: rgba(74,244,194,0.1);  }
+    .feature-dot.o { background: rgba(244,162,74,0.1);  }
+    .feature-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .feature-desc  { font-size: 12px; color: var(--muted); }
+    /* ── Card ── */
+    .login-card {
+      background: var(--card);
+      border: 1px solid rgba(200,240,100,0.1);
+      border-radius: 20px; padding: 36px 32px;
+      box-shadow: 0 0 0 1px rgba(200,240,100,0.04), 0 40px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
+      animation: slideUp 0.55s cubic-bezier(0.22,1,0.36,1) both;
     }
-    .alert.visible { display: block; animation: fadeIn 0.25s ease; }
-    .alert-error   { background: rgba(255,60,60,0.08); border: 1px solid rgba(255,60,60,0.25); color: #ff6b6b; }
-    .alert-success { background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.25); color: #00d4ff; }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-6px); }
-      to   { opacity: 1; transform: translateY(0); }
+    @keyframes slideUp { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
+    .card-header { margin-bottom: 28px; }
+    .card-title { font-family: 'DM Serif Display', serif; font-size: 24px; color: var(--text); letter-spacing: -0.3px; margin-bottom: 4px; }
+    .card-subtitle { font-size: 13px; color: var(--muted); }
+    /* ── Fields ── */
+    .field-group { margin-bottom: 16px; }
+    .field-label { display: block; font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; font-family: 'DM Mono', monospace; }
+    .field-label span { color: var(--accent); }
+    .ff-input {
+      width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+      color: var(--text); font-family: 'Outfit', sans-serif; font-size: 14px;
+      padding: 11px 14px; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
     }
-
-    /* ─── Spinner en botón ─── */
-    .spinner {
-      display: inline-block;
-      width: 14px; height: 14px;
-      border: 2px solid rgba(8,12,18,0.3);
-      border-top-color: #080c12;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      vertical-align: middle;
-      margin-right: 6px;
+    .ff-input::placeholder { color: var(--muted2); }
+    .ff-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(200,240,100,0.1); }
+    .input-wrap { position: relative; }
+    .input-wrap .ff-input { padding-right: 52px; }
+    .btn-eye { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.08em; cursor: pointer; transition: color 0.15s; padding: 4px; }
+    .btn-eye:hover { color: var(--accent); }
+    .forgot-row { display: flex; justify-content: flex-end; margin-top: -8px; margin-bottom: 20px; }
+    .btn-forgot { background: none; border: none; font-family: 'Outfit', sans-serif; font-size: 12px; color: var(--muted); cursor: pointer; transition: color 0.15s; }
+    .btn-forgot:hover { color: var(--accent2); }
+    /* ── Botones ── */
+    .btn-primary {
+      width: 100%; background: var(--accent); color: #0b0e14;
+      font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600;
+      padding: 12px; border: none; border-radius: 10px; cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 0 18px rgba(200,240,100,0.2); margin-bottom: 12px;
     }
+    .btn-primary:hover  { opacity: 0.88; transform: translateY(-1px); box-shadow: 0 0 28px rgba(200,240,100,0.35); }
+    .btn-primary:active { transform: translateY(0); opacity: 1; }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .btn-secondary {
+      width: 100%; background: transparent; color: var(--accent2);
+      font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500;
+      padding: 11px; border: 1px solid var(--border); border-radius: 10px;
+      cursor: pointer; transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    }
+    .btn-secondary:hover { background: rgba(74,244,194,0.06); border-color: rgba(74,244,194,0.3); transform: translateY(-1px); }
+    .btn-secondary:active { transform: translateY(0); }
+    /* ── Divider ── */
+    .divider { display: flex; align-items: center; gap: 10px; color: var(--muted2); font-size: 11px; letter-spacing: 0.1em; margin: 16px 0; font-family: 'DM Mono', monospace; }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    /* ── Alerta ── */
+    .alert { border-radius: 8px; padding: 10px 14px; font-size: 12px; display: none; margin-bottom: 16px; line-height: 1.5; }
+    .alert.visible { display: block; animation: fadeIn 0.2s ease; }
+    .alert.error   { background: rgba(244,96,96,0.08);  border: 1px solid rgba(244,96,96,0.25);  color: var(--danger); }
+    .alert.success { background: rgba(74,244,194,0.08); border: 1px solid rgba(74,244,194,0.25); color: var(--accent2); }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+    .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(11,14,20,0.3); border-top-color: #0b0e14; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ─── Label flotante ─── */
-    .field-label {
-      display: block;
-      font-size: 0.7rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: #4a6080;
-      margin-bottom: 0.4rem;
+    .card-footer { margin-top: 22px; text-align: center; font-size: 11px; color: var(--muted); line-height: 1.7; }
+    .card-footer a { color: var(--accent); text-decoration: none; }
+    .card-footer a:hover { text-decoration: underline; }
+    @media (max-width: 768px) {
+      .page-wrap { grid-template-columns: 1fr; gap: 28px; }
+      .brand-panel { display: none; }
     }
-    .field-label span { color: #00d4ff; }
   </style>
 </head>
+<body>
+<div class="page-wrap">
 
-<body class="flex items-center justify-center min-h-screen px-4 py-10 relative">
-
-  <!-- Decoración de fondo -->
-  <div class="bg-grid"></div>
-  <div class="ambient-blob"></div>
-  <div class="ambient-blob-2"></div>
-
-  <!-- ───────────────────────────────────────────
-       TARJETA PRINCIPAL
-  ─────────────────────────────────────────── -->
-  <div class="login-card w-full max-w-md p-8 relative z-10">
-
-    <!-- Logo + marca -->
-    <div class="mb-8">
-      <div class="logo-badge mb-4">
-        <div class="logo-icon">💹</div>
-        <span class="font-display text-2xl text-text tracking-tight">FinFlow</span>
+  <!-- ── Branding izquierdo ── -->
+  <div class="brand-panel">
+    <div class="logo-badge">
+      <div class="logo-icon">
+        <svg viewBox="0 0 20 20" fill="none">
+          <path d="M3 14l4-5 3 3 3-4 4 6" stroke="#0b0e14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="15" cy="5" r="2.5" fill="#0b0e14"/>
+        </svg>
       </div>
-      <p class="text-xs text-muted tracking-widest uppercase">Control financiero inteligente</p>
+      <span class="logo-name">Fin<span>Sight</span></span>
+    </div>
+    <h1 class="brand-headline">Tu dinero,<br/><em>bajo control total</em>.</h1>
+    <p class="brand-desc">FinSight transforma tus gastos diarios en decisiones inteligentes. Visualiza, analiza y predice tu futuro financiero desde un solo lugar.</p>
+    <div class="features">
+      <div class="feature-item">
+        <div class="feature-dot g">📊</div>
+        <div><div class="feature-title">Dashboard en tiempo real</div><div class="feature-desc">Resumen de ingresos, gastos y balance neto.</div></div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot t">🐜</div>
+        <div><div class="feature-title">Detector de gastos hormiga</div><div class="feature-desc">Identifica los pequeños gastos que drenan tu presupuesto.</div></div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot o">🔮</div>
+        <div><div class="feature-title">Predicción DSS</div><div class="feature-desc">Proyecta tu gasto mensual con intervalos de confianza.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Card de login ── -->
+  <div class="login-card">
+    <div class="card-header">
+      <div class="card-title">Bienvenido de nuevo</div>
+      <div class="card-subtitle">Accede a tu dashboard financiero</div>
     </div>
 
-    <!-- Título de sección -->
-    <h1 class="font-display text-3xl text-text mb-1">Bienvenido de nuevo</h1>
-    <p class="text-sm text-muted mb-7">Accede a tu dashboard personal</p>
+    <div class="alert" id="alert-box" role="alert"></div>
 
-    <!-- Alerta (error / éxito) -->
-    <div id="alert-box" class="alert mb-5" role="alert"></div>
-
-    <!-- ─── FORMULARIO DE LOGIN ─── -->
     <form id="login-form" novalidate>
-
-      <!-- Email -->
-      <div class="mb-4">
-        <label for="email" class="field-label">Correo electrónico <span>*</span></label>
-        <input
-          id="email"
-          type="email"
-          class="ff-input"
-          placeholder="tu@correo.com"
-          autocomplete="email"
-          required
-        />
+      <div class="field-group">
+        <label class="field-label" for="email">Correo electrónico <span>*</span></label>
+        <input id="email" type="email" class="ff-input" placeholder="tu@correo.com" autocomplete="email" required />
       </div>
-
-      <!-- Contraseña -->
-      <div class="mb-2">
-        <label for="password" class="field-label">Contraseña <span>*</span></label>
-        <div class="relative">
-          <input
-            id="password"
-            type="password"
-            class="ff-input pr-12"
-            placeholder="••••••••"
-            autocomplete="current-password"
-            required
-          />
-          <!-- Botón mostrar/ocultar contraseña -->
-          <button
-            type="button"
-            id="toggle-password"
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-accent transition-colors text-xs tracking-wide"
-            aria-label="Mostrar contraseña"
-          >VER</button>
+      <div class="field-group">
+        <label class="field-label" for="password">Contraseña <span>*</span></label>
+        <div class="input-wrap">
+          <input id="password" type="password" class="ff-input" placeholder="••••••••" autocomplete="current-password" required />
+          <button type="button" class="btn-eye" id="toggle-pass">VER</button>
         </div>
       </div>
-
-      <!-- ¿Olvidaste tu contraseña? -->
-      <div class="flex justify-end mb-6">
-        <button
-          type="button"
-          id="btn-forgot"
-          class="text-xs text-muted hover:text-accent transition-colors tracking-wide"
-        >¿Olvidaste tu contraseña?</button>
+      <div class="forgot-row">
+        <button type="button" class="btn-forgot" id="btn-forgot">¿Olvidaste tu contraseña?</button>
       </div>
-
-      <!-- Botón de acceso -->
-      <button type="submit" id="btn-login" class="btn-primary mb-4">
-        Iniciar sesión
-      </button>
-
+      <button type="submit" id="btn-login" class="btn-primary">Iniciar sesión</button>
     </form>
 
-    <!-- Divisor -->
-    <div class="divider my-5">O</div>
+    <div class="divider">O</div>
+    <button type="button" id="btn-register" class="btn-secondary">Crear cuenta nueva</button>
 
-    <!-- Botón de registro -->
-    <button type="button" id="btn-register" class="btn-secondary">
-      Crear cuenta nueva
-    </button>
-
-    <!-- Footer legal -->
-    <p class="text-center text-xs text-muted mt-8 leading-relaxed">
-      Al acceder, aceptas nuestros
-      <a href="#" class="text-accent hover:underline">Términos de uso</a>
-      y
-      <a href="#" class="text-accent hover:underline">Política de privacidad</a>.
-    </p>
-
+    <div class="card-footer">
+      Al acceder, aceptas los <a href="#">Términos de uso</a> y la <a href="#">Política de privacidad</a> de FinSight.
+    </div>
   </div>
-  <!-- /TARJETA -->
 
+</div>
 
-  <!-- ═══════════════════════════════════════════
-       JAVASCRIPT
-  ═══════════════════════════════════════════ -->
-  <script>
-    /* ──────────────────────────────────────────
-       1. CONFIGURACIÓN DE SUPABASE
-    ────────────────────────────────────────── */
-    const SUPABASE_URL      = 'https://smrttvjrivnsunuhtoah.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtcnR0dmpyaXZuc3VudWh0b2FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwMTk0MzYsImV4cCI6MjA5MzU5NTQzNn0.schbQxr0xKPZ7G6DZK8a_ewWQAKDUJIWKHre2YGPPQg';
+<script>
+const SUPABASE_URL      = 'TU_SUPABASE_URL_AQUÍ';
+const SUPABASE_ANON_KEY = 'TU_SUPABASE_ANON_KEY_AQUÍ';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Inicializa el cliente de Supabase usando la variable global inyectada por el CDN
-    const { createClient } = supabase;
-    const supabaseClient   = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Redirige si ya hay sesión
+(async () => {
+  const { data: { session } } = await db.auth.getSession();
+  if (session) window.location.replace('dashboard.html');
+})();
 
+function showAlert(msg, type = 'error') {
+  const el = document.getElementById('alert-box');
+  el.textContent = msg; el.className = `alert visible ${type}`;
+}
+function hideAlert() { document.getElementById('alert-box').className = 'alert'; }
+function setLoading(on) {
+  const btn = document.getElementById('btn-login');
+  btn.disabled  = on;
+  btn.innerHTML = on ? '<span class="spinner"></span>Verificando…' : 'Iniciar sesión';
+}
 
-    /* ──────────────────────────────────────────
-       2. UTILIDADES UI
-    ────────────────────────────────────────── */
+document.getElementById('toggle-pass').addEventListener('click', function () {
+  const inp = document.getElementById('password');
+  const h = inp.type === 'password';
+  inp.type = h ? 'text' : 'password';
+  this.textContent = h ? 'OC.' : 'VER';
+});
 
-    /** Muestra un mensaje en la caja de alerta */
-    function showAlert(message, type = 'error') {
-      const box = document.getElementById('alert-box');
-      box.textContent = message;
-      box.className = `alert visible alert-${type}`;
-    }
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+  e.preventDefault(); hideAlert();
+  const email    = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  if (!email || !password) { showAlert('Completa todos los campos.'); return; }
+  setLoading(true);
+  try {
+    const { error } = await db.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    showAlert('✅ Acceso correcto. Redirigiendo…', 'success');
+    setTimeout(() => window.location.replace('dashboard.html'), 900);
+  } catch (err) {
+    const msgs = {
+      'Invalid login credentials': 'Correo o contraseña incorrectos.',
+      'Email not confirmed':        'Confirma tu correo antes de ingresar.',
+      'Too many requests':          'Demasiados intentos. Espera un momento.',
+    };
+    showAlert(msgs[err.message] || 'Error al iniciar sesión. Inténtalo de nuevo.');
+  } finally { setLoading(false); }
+});
 
-    /** Oculta la alerta */
-    function hideAlert() {
-      const box = document.getElementById('alert-box');
-      box.className = 'alert';
-    }
-
-    /** Activa/desactiva el estado de carga en el botón de login */
-    function setLoading(isLoading) {
-      const btn = document.getElementById('btn-login');
-      btn.disabled = isLoading;
-      btn.innerHTML = isLoading
-        ? '<span class="spinner"></span> Verificando…'
-        : 'Iniciar sesión';
-    }
-
-
-    /* ──────────────────────────────────────────
-       3. MOSTRAR / OCULTAR CONTRASEÑA
-    ────────────────────────────────────────── */
-    document.getElementById('toggle-password').addEventListener('click', function () {
-      const input = document.getElementById('password');
-      const isHidden = input.type === 'password';
-      input.type    = isHidden ? 'text' : 'password';
-      this.textContent = isHidden ? 'OC.' : 'VER';
+document.getElementById('btn-forgot').addEventListener('click', async () => {
+  const email = document.getElementById('email').value.trim();
+  if (!email) { showAlert('Escribe tu correo arriba para recuperar la contraseña.'); return; }
+  try {
+    const { error } = await db.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password.html`,
     });
+    if (error) throw error;
+    showAlert('📧 Enviamos un enlace a tu correo. Revisa tu bandeja de entrada.', 'success');
+  } catch { showAlert('No pudimos enviar el correo. Verifica la dirección.'); }
+});
 
-
-    /* ──────────────────────────────────────────
-       4. LOGIN CON EMAIL Y CONTRASEÑA
-    ────────────────────────────────────────── */
-    document.getElementById('login-form').addEventListener('submit', async function (e) {
-      e.preventDefault();
-      hideAlert();
-
-      const email    = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-
-      // Validación básica en el cliente
-      if (!email || !password) {
-        showAlert('Por favor, completa todos los campos.');
-        return;
-      }
-
-      setLoading(true);
-
-      try {
-        const { data, error } = await supabaseClient.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (error) throw error;
-
-        // ✅ Login exitoso
-        showAlert('¡Acceso correcto! Redirigiendo…', 'success');
-
-        // TODO: redirige al dashboard tras el login exitoso
-        // setTimeout(() => { window.location.href = '/dashboard.html'; }, 1200);
-
-      } catch (err) {
-        // Traduce los errores más comunes de Supabase al español
-        const messages = {
-          'Invalid login credentials':    'Correo o contraseña incorrectos.',
-          'Email not confirmed':          'Confirma tu correo antes de ingresar.',
-          'Too many requests':            'Demasiados intentos. Espera un momento.',
-        };
-        const msg = messages[err.message] || 'Ocurrió un error. Inténtalo de nuevo.';
-        showAlert(msg);
-      } finally {
-        setLoading(false);
-      }
-    });
-
-
-    /* ──────────────────────────────────────────
-       5. RECUPERAR CONTRASEÑA
-    ────────────────────────────────────────── */
-    document.getElementById('btn-forgot').addEventListener('click', async function () {
-      const email = document.getElementById('email').value.trim();
-
-      if (!email) {
-        showAlert('Escribe tu correo en el campo de arriba para recuperar tu contraseña.');
-        return;
-      }
-
-      try {
-        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/reset-password.html`, // ajusta la ruta
-        });
-
-        if (error) throw error;
-
-        showAlert('📧 Te enviamos un enlace de recuperación. Revisa tu bandeja de entrada.', 'success');
-
-      } catch (err) {
-        showAlert('No pudimos enviar el correo. Verifica la dirección.');
-      }
-    });
-
-
-    /* ──────────────────────────────────────────
-       6. BOTÓN DE REGISTRO
-       TODO: reemplaza la redirección por la URL
-             de tu página de registro, o abre un
-             modal personalizado.
-    ────────────────────────────────────────── */
-    document.getElementById('btn-register').addEventListener('click', function () {
-      // window.location.href = '/register.html';
-      showAlert('👋 Pronto podrás crear tu cuenta desde aquí.', 'success');
-    });
-
-
-    /* ──────────────────────────────────────────
-       7. VERIFICAR SESIÓN ACTIVA
-       Si el usuario ya está logueado, redirige.
-    ────────────────────────────────────────── */
-    (async function checkSession() {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (session) {
-        // TODO: redirige si ya hay sesión activa
-        // window.location.href = '/dashboard.html';
-        console.log('[FinFlow] Sesión activa detectada:', session.user.email);
-      }
-    })();
-
-  </script>
-
+document.getElementById('btn-register').addEventListener('click', () => {
+  window.location.href = 'registro.html';
+});
+</script>
 </body>
 </html>

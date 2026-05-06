@@ -1,56 +1,282 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FinFlow — Registro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body { background-color: #080c12; color: #c8d8e8; font-family: monospace; }
-        .card { background: #131d2e; border: 1px solid #1e2d45; border-radius: 20px; }
-        .input { width: 100%; background: #080c12; border: 1px solid #1e2d45; border-radius: 10px; padding: 10px; color: white; margin-bottom: 15px; }
-        .btn { width: 100%; background: #00d4ff; color: #080c12; padding: 10px; border-radius: 10px; font-weight: bold; cursor: pointer; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinSight — Crear cuenta</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:     #0b0e14; --bg2: #111520; --bg3: #181e2e; --card: #161b28;
+      --border: rgba(255,255,255,0.07);
+      --accent: #c8f064; --accent2: #4af4c2; --accent3: #f4a24a; --danger: #f46060;
+      --text:   #e8ecf5; --muted: #6b7494; --muted2: #3d4460;
+    }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      padding: 20px; overflow-x: hidden;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image:
+        radial-gradient(ellipse 60% 50% at 80% -10%,  rgba(74,244,194,0.07)  0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 10%  110%, rgba(200,240,100,0.06) 0%, transparent 55%),
+        linear-gradient(rgba(74,244,194,0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(74,244,194,0.018) 1px, transparent 1px);
+      background-size: auto, auto, 48px 48px, 48px 48px;
+      pointer-events: none; z-index: 0;
+    }
+    .page-wrap {
+      position: relative; z-index: 1;
+      display: grid; grid-template-columns: 420px 1fr;
+      gap: 56px; width: 100%; max-width: 900px; align-items: center;
+    }
+    /* ── Card ── */
+    .reg-card {
+      background: var(--card);
+      border: 1px solid rgba(74,244,194,0.1);
+      border-radius: 20px; padding: 36px 32px;
+      box-shadow: 0 0 0 1px rgba(74,244,194,0.04), 0 40px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
+      animation: slideUp 0.55s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    @keyframes slideUp { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
+    .card-header { margin-bottom: 28px; }
+    .logo-badge { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+    .logo-icon { width: 36px; height: 36px; background: var(--accent); border-radius: 10px; display: grid; place-items: center; box-shadow: 0 0 18px rgba(200,240,100,0.25); }
+    .logo-icon svg { width: 20px; height: 20px; }
+    .logo-name { font-family: 'DM Serif Display', serif; font-size: 21px; color: var(--text); letter-spacing: -0.5px; }
+    .logo-name span { color: var(--accent); }
+    .card-title { font-family: 'DM Serif Display', serif; font-size: 24px; color: var(--text); letter-spacing: -0.3px; margin-bottom: 4px; }
+    .card-subtitle { font-size: 13px; color: var(--muted); }
+    /* ── Fields ── */
+    .field-group { margin-bottom: 16px; }
+    .field-label { display: block; font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; font-family: 'DM Mono', monospace; }
+    .field-label span { color: var(--accent2); }
+    .ff-input {
+      width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+      color: var(--text); font-family: 'Outfit', sans-serif; font-size: 14px;
+      padding: 11px 14px; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .ff-input::placeholder { color: var(--muted2); }
+    .ff-input:focus { border-color: var(--accent2); box-shadow: 0 0 0 3px rgba(74,244,194,0.1); }
+    .input-wrap { position: relative; }
+    .input-wrap .ff-input { padding-right: 52px; }
+    .btn-eye { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.08em; cursor: pointer; transition: color 0.15s; padding: 4px; }
+    .btn-eye:hover { color: var(--accent2); }
+    /* Hint de requisitos */
+    .pass-hint { font-size: 11px; color: var(--muted); margin-top: 5px; line-height: 1.5; }
+    /* ── Botón principal (tono accent2) ── */
+    .btn-primary {
+      width: 100%; background: var(--accent2); color: #0b0e14;
+      font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600;
+      padding: 12px; border: none; border-radius: 10px; cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 0 18px rgba(74,244,194,0.2); margin-bottom: 12px; margin-top: 8px;
+    }
+    .btn-primary:hover  { opacity: 0.88; transform: translateY(-1px); box-shadow: 0 0 28px rgba(74,244,194,0.35); }
+    .btn-primary:active { transform: translateY(0); opacity: 1; }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    /* ── Alerta ── */
+    .alert { border-radius: 8px; padding: 10px 14px; font-size: 12px; display: none; margin-bottom: 16px; line-height: 1.5; }
+    .alert.visible { display: block; animation: fadeIn 0.2s ease; }
+    .alert.error   { background: rgba(244,96,96,0.08);  border: 1px solid rgba(244,96,96,0.25);  color: var(--danger); }
+    .alert.success { background: rgba(74,244,194,0.08); border: 1px solid rgba(74,244,194,0.25); color: var(--accent2); }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+    .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(11,14,20,0.3); border-top-color: #0b0e14; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .card-footer { margin-top: 20px; text-align: center; font-size: 12px; color: var(--muted); }
+    .card-footer a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .card-footer a:hover { text-decoration: underline; }
+    /* ── Panel derecho ── */
+    .info-panel { padding: 8px 0; }
+    .info-panel .logo-badge { margin-bottom: 40px; }
+    .info-headline { font-family: 'DM Serif Display', serif; font-size: 42px; line-height: 1.15; color: var(--text); letter-spacing: -1px; margin-bottom: 18px; }
+    .info-headline em { color: var(--accent2); font-style: normal; }
+    .info-desc { font-size: 14px; color: var(--muted); line-height: 1.75; margin-bottom: 36px; max-width: 340px; }
+    .steps { display: flex; flex-direction: column; gap: 20px; }
+    .step-item { display: flex; align-items: flex-start; gap: 14px; }
+    .step-num {
+      width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+      display: grid; place-items: center; font-size: 12px; font-weight: 700;
+      font-family: 'DM Mono', monospace; margin-top: 1px;
+      background: rgba(74,244,194,0.1); color: var(--accent2);
+      border: 1px solid rgba(74,244,194,0.2);
+    }
+    .step-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .step-desc  { font-size: 12px; color: var(--muted); }
+    @media (max-width: 768px) {
+      .page-wrap { grid-template-columns: 1fr; gap: 28px; }
+      .info-panel { display: none; }
+    }
+  </style>
 </head>
-<body class="flex items-center justify-center min-h-screen">
-    <div class="card w-full max-w-md p-8">
-        <h1 class="text-2xl mb-6">Crear cuenta nueva</h1>
-        <div id="msg" class="hidden p-3 mb-4 rounded text-sm"></div>
-        <form id="reg-form">
-            <label class="text-xs text-gray-500">CORREO ELECTRÓNICO</label>
-            <input id="email" type="email" class="input" placeholder="tu@correo.com" required>
-            <label class="text-xs text-gray-500">CONTRASEÑA</label>
-            <input id="pass" type="password" class="input" placeholder="••••••••" required>
-            <button type="submit" class="btn">Registrarse ahora</button>
-        </form>
-        <p class="text-center mt-4 text-xs">
-            <a href="index.html" class="text-cyan-400">¿Ya tienes cuenta? Inicia sesión</a>
-        </p>
+<body>
+<div class="page-wrap">
+
+  <!-- ── Card de registro (izquierda) ── -->
+  <div class="reg-card">
+    <div class="card-header">
+      <div class="logo-badge">
+        <div class="logo-icon">
+          <svg viewBox="0 0 20 20" fill="none">
+            <path d="M3 14l4-5 3 3 3-4 4 6" stroke="#0b0e14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="15" cy="5" r="2.5" fill="#0b0e14"/>
+          </svg>
+        </div>
+        <span class="logo-name">Fin<span>Sight</span></span>
+      </div>
+      <div class="card-title">Crear cuenta nueva</div>
+      <div class="card-subtitle">Empieza a tomar el control de tus finanzas hoy</div>
     </div>
 
-    <script>
-        const SUPABASE_URL = 'https://smrttvjrivnsunuhtoah.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtcnR0dmpyaXZuc3VudWh0b2FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwMTk0MzYsImV4cCI6MjA5MzU5NTQzNn0.schbQxr0xKPZ7G6DZK8a_ewWQAKDUJIWKHre2YGPPQg';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    <div class="alert" id="alert-box" role="alert"></div>
 
-        document.getElementById('reg-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('pass').value;
-            const msg = document.getElementById('msg');
+    <form id="reg-form" novalidate>
 
-            const { data, error } = await supabaseClient.auth.signUp({ email, password });
+      <!-- Nombre (opcional, para el perfil) -->
+      <div class="field-group">
+        <label class="field-label" for="nombre">Nombre completo</label>
+        <input id="nombre" type="text" class="ff-input" placeholder="Ej: Juan Pérez" autocomplete="name" />
+      </div>
 
-            msg.classList.remove('hidden');
-            if (error) {
-                msg.textContent = error.message;
-                msg.style.backgroundColor = 'rgba(255,0,0,0.1)';
-            } else {
-                msg.textContent = '¡Registro exitoso! Revisa tu correo para confirmar.';
-                msg.style.backgroundColor = 'rgba(0,255,0,0.1)';
-            }
-        });
-    </script>
+      <!-- Email -->
+      <div class="field-group">
+        <label class="field-label" for="email">Correo electrónico <span>*</span></label>
+        <input id="email" type="email" class="ff-input" placeholder="tu@correo.com" autocomplete="email" required />
+      </div>
+
+      <!-- Contraseña -->
+      <div class="field-group">
+        <label class="field-label" for="password">Contraseña <span>*</span></label>
+        <div class="input-wrap">
+          <input id="password" type="password" class="ff-input" placeholder="Mínimo 8 caracteres" autocomplete="new-password" required />
+          <button type="button" class="btn-eye" id="toggle-pass">VER</button>
+        </div>
+        <p class="pass-hint">Usa al menos 8 caracteres con letras y números.</p>
+      </div>
+
+      <button type="submit" id="btn-register" class="btn-primary">
+        Crear mi cuenta
+      </button>
+    </form>
+
+    <div class="card-footer">
+      ¿Ya tienes cuenta?
+      <a href="index.html">Inicia sesión aquí</a>
+    </div>
+  </div>
+
+  <!-- ── Panel informativo (derecha) ── -->
+  <div class="info-panel">
+    <div class="logo-badge">
+      <div class="logo-icon">
+        <svg viewBox="0 0 20 20" fill="none">
+          <path d="M3 14l4-5 3 3 3-4 4 6" stroke="#0b0e14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="15" cy="5" r="2.5" fill="#0b0e14"/>
+        </svg>
+      </div>
+      <span class="logo-name">Fin<span>Sight</span></span>
+    </div>
+
+    <h1 class="info-headline">
+      Empieza en<br/><em>3 pasos simples</em>.
+    </h1>
+    <p class="info-desc">
+      Configura tu perfil financiero en minutos. Sin tarjeta de crédito, sin compromisos.
+    </p>
+
+    <div class="steps">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div><div class="step-title">Crea tu cuenta</div><div class="step-desc">Solo necesitas un correo y una contraseña para comenzar.</div></div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div><div class="step-title">Configura tus categorías</div><div class="step-desc">Define cómo clasificas tus gastos e ingresos personales.</div></div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div><div class="step-title">Registra tu primer movimiento</div><div class="step-desc">Añade un gasto o ingreso y empieza a ver tu dashboard en acción.</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const SUPABASE_URL      = 'TU_SUPABASE_URL_AQUÍ';
+const SUPABASE_ANON_KEY = 'TU_SUPABASE_ANON_KEY_AQUÍ';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Si ya hay sesión, no tiene sentido estar en registro
+(async () => {
+  const { data: { session } } = await db.auth.getSession();
+  if (session) window.location.replace('dashboard.html');
+})();
+
+function showAlert(msg, type = 'error') {
+  const el = document.getElementById('alert-box');
+  el.textContent = msg; el.className = `alert visible ${type}`;
+}
+function setLoading(on) {
+  const btn = document.getElementById('btn-register');
+  btn.disabled  = on;
+  btn.innerHTML = on ? '<span class="spinner"></span>Creando cuenta…' : 'Crear mi cuenta';
+}
+
+document.getElementById('toggle-pass').addEventListener('click', function () {
+  const inp = document.getElementById('password');
+  const h = inp.type === 'password';
+  inp.type = h ? 'text' : 'password';
+  this.textContent = h ? 'OC.' : 'VER';
+});
+
+document.getElementById('reg-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const nombre   = document.getElementById('nombre').value.trim();
+  const email    = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+
+  if (!email)         { showAlert('El correo es obligatorio.'); return; }
+  if (!password)      { showAlert('La contraseña es obligatoria.'); return; }
+  if (password.length < 8) { showAlert('La contraseña debe tener al menos 8 caracteres.'); return; }
+
+  setLoading(true);
+  try {
+    const { error } = await db.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: nombre || email.split('@')[0],
+        },
+      },
+    });
+
+    if (error) throw error;
+
+    showAlert('🎉 ¡Cuenta creada! Revisa tu correo para confirmar tu registro antes de iniciar sesión.', 'success');
+    // Opcional: redirige al login tras unos segundos
+    setTimeout(() => window.location.replace('index.html'), 4000);
+
+  } catch (err) {
+    const msgs = {
+      'User already registered':        'Este correo ya tiene una cuenta. Intenta iniciar sesión.',
+      'Password should be at least 6':  'La contraseña debe tener al menos 6 caracteres.',
+      'Unable to validate email':       'La dirección de correo no es válida.',
+    };
+    showAlert(msgs[err.message] || 'Error al crear la cuenta: ' + err.message);
+  } finally {
+    setLoading(false);
+  }
+});
+</script>
 </body>
 </html>
