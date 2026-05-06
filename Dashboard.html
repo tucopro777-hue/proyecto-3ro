@@ -829,20 +829,19 @@ document.getElementById('btn-logout').addEventListener('click', async () => {
    Retorna array de objetos { id, nombre }
 ────────────────────────────────────────── */
 async function fetchCategorias(userId) {
-  // Trae categorías globales (user_id IS NULL) + las del usuario actual
   const { data, error } = await db
     .from('categorias')
-    .select('id, nombre')
-    .or(`user_id.is.null,user_id.eq.${userId}`)
-    .order('nombre', { ascending: true });
+    .select('id_categoria, nombre_categoria')
+    .or(`id_usuario.is.null,id_usuario.eq.${userId}`) // Ajustado a id_usuario
+    .order('nombre_categoria', { ascending: true });
 
   if (error) {
-    console.error('[FinSight] Error al cargar categorías:', error.message);
+    console.error('[FinSight] Error:', error.message);
     return [];
   }
-  return data;
+  // Mapeamos para mantener compatibilidad con el resto del JS de Claude
+  return data.map(c => ({ id: c.id_categoria, nombre: c.nombre_categoria }));
 }
-
 /* ──────────────────────────────────────────
    6. POBLAR EL <select> DE CATEGORÍAS
    Incluye la opción especial "+ Crear nueva"
@@ -876,15 +875,22 @@ async function populateCategorySelect(userId) {
    Tabla: categorias
    Inserta con el user_id del usuario activo.
 ────────────────────────────────────────── */
+/* ──────────────────────────────────────────
+   7. GUARDAR NUEVA CATEGORÍA EN SUPABASE
+────────────────────────────────────────── */
 async function saveNuevaCategoria(nombre, userId) {
   const { data, error } = await db
     .from('categorias')
-    .insert([{ nombre: nombre.trim(), user_id: userId }])
-    .select('id, nombre')
+    .insert([{ 
+      nombre_categoria: nombre.trim(), // <--- Cambiado de 'nombre' a 'nombre_categoria'
+      id_usuario: userId,              // <--- Cambiado de 'user_id' a 'id_usuario'
+      tipo_movimiento: selectedType === 'gasto' ? 'Gasto' : 'Ingreso' // Requerido por el SQL
+    }])
+    .select('id_categoria, nombre_categoria') // <--- Ajustado a los nombres del SQL
     .single();
 
   if (error) throw error;
-  return data;
+  return { id: data.id_categoria, nombre: data.nombre_categoria }; // Mapeo para que el resto del código no falle
 }
 
 /* ──────────────────────────────────────────
