@@ -1215,6 +1215,43 @@ function animateBars() {
   }, 600);
 }
 
+
+
+async function updateDynamicKPIs() {
+  const { data, error } = await db
+    .from('movimientos_diarios')
+    .select('monto_real, tipo_movimiento')
+    .eq('id_usuario', currentUserId); // Usa id_usuario como definimos en el SQL de 16 tablas
+
+  if (error) {
+    console.error('Error al calcular KPIs:', error.message);
+    return;
+  }
+
+  let totalIngresos = 0;
+  let totalGastos = 0;
+
+  data.forEach(mov => {
+    if (mov.tipo_movimiento === 'Ingreso') {
+      totalIngresos += parseFloat(mov.monto_real);
+    } else {
+      totalGastos += parseFloat(mov.monto_real);
+    }
+  });
+
+  const balanceNeto = totalIngresos - totalGastos;
+
+  // Actualizar los textos en el HTML
+  // Nota: Asegúrate de que los IDs coincidan con los de tus tarjetas KPI
+  document.getElementById('kpi-gastos').textContent = totalGastos.toLocaleString('es-BO');
+  document.querySelector('[style="--kpi-color: var(--accent)"] .kpi-value').innerHTML = 
+    `<span class="currency">Bs.</span>${balanceNeto.toLocaleString('es-BO')}`;
+  
+  // Actualizar los bloques de balance de la tarjeta central
+  document.querySelector('.balance-val.ingreso').textContent = totalIngresos.toLocaleString('es-BO');
+  document.querySelector('.balance-val.gasto').textContent = totalGastos.toLocaleString('es-BO');
+  document.querySelector('.balance-val.neto').textContent = balanceNeto.toLocaleString('es-BO');
+}
 /* ══════════════════════════════════════════
    INIT — punto de entrada principal
 ══════════════════════════════════════════ */
@@ -1230,6 +1267,9 @@ function animateBars() {
 
   // 3. Renderiza datos estáticos de demo
   renderStaticData();
+  await updateDynamicKPIs(); // Calcula el saldo real
+  await refreshMovimientos(); // Muestra la lista real
+  await populateCategorySelect(currentUserId);
   animateBars();
 
   // 4. Carga movimientos reales de Supabase
