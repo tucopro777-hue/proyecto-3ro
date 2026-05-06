@@ -19,7 +19,7 @@
     --bg3:       #181e2e;
     --card:      #161b28;
     --border:    rgba(255,255,255,0.07);
-    --accent:    #c8f064;
+    --accent:    #1a7226;
     --accent2:   #4af4c2;
     --accent3:   #f4a24a;
     --danger:    #f46060;
@@ -750,7 +750,7 @@ document.getElementById('btn-logout').addEventListener('click', async () => {
 });
 
 /* ──────────────────────────────────────────
-   5. LEER CATEGORÍAS (Corregido a 16 tablas)
+   5. LEER CATEGORÍAS
 ────────────────────────────────────────── */
 async function fetchCategorias(userId) {
   const { data, error } = await db
@@ -789,7 +789,7 @@ async function populateCategorySelect(userId) {
 }
 
 /* ──────────────────────────────────────────
-   7. GUARDAR NUEVA CATEGORÍA (Corregido)
+   7. GUARDAR NUEVA CATEGORÍA
 ────────────────────────────────────────── */
 async function saveNuevaCategoria(nombre, userId) {
   const { data, error } = await db
@@ -807,7 +807,7 @@ async function saveNuevaCategoria(nombre, userId) {
 }
 
 /* ──────────────────────────────────────────
-   8. GUARDAR MOVIMIENTO (Corregido)
+   8. GUARDAR MOVIMIENTO
 ────────────────────────────────────────── */
 async function saveMovimiento({ userId, tipo, descripcion, monto, categoriaId, esHormiga }) {
   const { data, error } = await db
