@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinSight — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- Supabase JS Client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0b0e14;
+    --bg2:       #111520;
+    --bg3:       #181e2e;
+    --card:      #161b28;
+    --border:    rgba(255,255,255,0.07);
+    --accent:    #c8f064;
+    --accent2:   #4af4c2;
+    --accent3:   #f4a24a;
+    --danger:    #f46060;
+    --text:      #e8ecf5;
+    --muted:     #6b7494;
+    --muted2:    #3d4460;
+    --font-head: 'DM Serif Display', serif;
+    --font-body: 'Outfit', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --r:         12px;
+    --r-lg:      20px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 20% -10%, rgba(200,240,100,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 90% 110%, rgba(74,244,194,0.05) 0%, transparent 50%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── LAYOUT ── */
+  .shell {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    grid-template-rows: auto 1fr;
+    min-height: 100vh;
+    position: relative; z-index: 1;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    grid-row: 1 / -1;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    padding: 28px 0;
+    display: flex;
+    flex-direction: column;
+    position: sticky; top: 0; height: 100vh;
+    overflow-y: auto;
+  }
+  .logo { padding: 0 24px 32px; display: flex; align-items: center; gap: 10px; }
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 10px;
+    display: grid; place-items: center;
+  }
+  .logo-icon svg { width: 20px; height: 20px; }
+  .logo-name { font-family: var(--font-head); font-size: 22px; color: var(--text); letter-spacing: -0.5px; }
+  .logo-name span { color: var(--accent); }
+
+  .nav-section { padding: 0 12px; flex: 1; }
+  .nav-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--muted);
+    padding: 8px 12px 6px; margin-top: 8px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 14px; border-radius: 9px; cursor: pointer;
+    color: var(--muted); font-size: 14px; font-weight: 400;
+    transition: all 0.15s; margin-bottom: 2px; text-decoration: none;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+  .nav-item.active { background: rgba(200,240,100,0.1); color: var(--accent); font-weight: 500; }
+  .nav-item.active .nav-dot { background: var(--accent); }
+  .nav-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted2); flex-shrink: 0; }
+  .nav-icon { width: 16px; height: 16px; opacity: 0.7; flex-shrink: 0; }
+  .nav-item.active .nav-icon { opacity: 1; }
+
+  .sidebar-bottom { padding: 20px 16px 0; border-top: 1px solid var(--border); margin-top: auto; }
+  .user-chip {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 10px;
+    background: var(--bg3); cursor: pointer;
+  }
+  /* Botón de cerrar sesión */
+  .btn-logout {
+    display: flex; align-items: center; gap: 6px;
+    width: 100%; padding: 8px 12px; margin-top: 8px;
+    border-radius: 8px; background: transparent;
+    border: 1px solid rgba(244,96,96,0.2);
+    color: var(--danger); font-family: var(--font-body);
+    font-size: 12px; cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .btn-logout:hover { background: rgba(244,96,96,0.08); border-color: rgba(244,96,96,0.4); }
+  .avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    display: grid; place-items: center;
+    font-size: 13px; font-weight: 600; color: #0b0e14; flex-shrink: 0;
+  }
+  .user-info { flex: 1; min-width: 0; }
+  .user-name { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .user-role { font-size: 11px; color: var(--muted); }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    grid-column: 2;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+  }
+  .topbar-left h1 { font-family: var(--font-head); font-size: 26px; font-weight: 400; letter-spacing: -0.5px; color: var(--text); }
+  .topbar-left p { font-size: 13px; color: var(--muted); margin-top: 1px; }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+  .month-selector {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 14px;
+    font-size: 13px; color: var(--text); cursor: pointer;
+    font-family: var(--font-body);
+  }
+  .month-selector select { background: transparent; border: none; color: var(--text); font-family: var(--font-body); font-size: 13px; outline: none; cursor: pointer; }
+  .month-selector select option { background: var(--bg3); }
+
+  /* ── BOTÓN AÑADIR (Topbar) ── */
+  .btn-add {
+    display: flex; align-items: center; gap: 7px;
+    padding: 8px 18px; border-radius: 9px;
+    background: var(--accent); color: #0b0e14;
+    font-family: var(--font-body); font-size: 13px; font-weight: 600;
+    border: none; cursor: pointer;
+    transition: opacity 0.15s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 0 18px rgba(200,240,100,0.25);
+  }
+  .btn-add:hover { opacity: 0.88; transform: translateY(-1px); box-shadow: 0 0 28px rgba(200,240,100,0.4); }
+  .btn-add:active { transform: translateY(0); }
+
+  .btn-notif {
+    position: relative; width: 36px; height: 36px;
+    border-radius: 8px; background: var(--bg3);
+    border: 1px solid var(--border); cursor: pointer;
+    display: grid; place-items: center; color: var(--muted);
+    transition: color 0.15s;
+  }
+  .btn-notif:hover { color: var(--text); }
+  .notif-badge { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; background: var(--danger); border-radius: 50%; border: 1.5px solid var(--bg); }
+
+  /* ── MAIN ── */
+  .main { grid-column: 2; padding: 28px 32px 40px; overflow-y: auto; }
+
+  /* ── KPI CARDS ── */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  .kpi {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--r-lg); padding: 22px 22px 18px;
+    position: relative; overflow: hidden;
+    animation: fadeUp 0.4s ease both;
+  }
+  .kpi:nth-child(1) { animation-delay: 0.05s; }
+  .kpi:nth-child(2) { animation-delay: 0.10s; }
+  .kpi:nth-child(3) { animation-delay: 0.15s; }
+  .kpi:nth-child(4) { animation-delay: 0.20s; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+  .kpi::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: var(--kpi-color, var(--accent)); border-radius: var(--r-lg) var(--r-lg) 0 0;
+  }
+  .kpi-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .kpi-label { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+  .kpi-badge { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 20px; background: rgba(255,255,255,0.06); color: var(--muted); }
+  .kpi-badge.up   { background: rgba(200,240,100,0.12); color: var(--accent); }
+  .kpi-badge.down { background: rgba(244,96,96,0.12);   color: var(--danger); }
+  .kpi-value { font-family: var(--font-mono); font-size: 28px; font-weight: 500; color: var(--text); letter-spacing: -1px; line-height: 1; margin-bottom: 8px; }
+  .kpi-value .currency { font-size: 15px; color: var(--muted); font-weight: 400; margin-right: 2px; }
+  .kpi-sub { font-size: 12px; color: var(--muted); }
+  .kpi-progress { margin-top: 12px; }
+  .progress-track { height: 4px; background: var(--muted2); border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 4px; background: var(--accent); transition: width 1s cubic-bezier(0.4,0,0.2,1); }
+  .progress-fill.warn { background: var(--accent3); }
+  .progress-fill.danger { background: var(--danger); }
+  .progress-labels { display: flex; justify-content: space-between; margin-top: 5px; font-size: 10px; color: var(--muted); font-family: var(--font-mono); }
+
+  /* ── GRID PRINCIPAL ── */
+  .mid-grid { display: grid; grid-template-columns: 1fr 340px; gap: 16px; margin-bottom: 16px; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--r-lg); padding: 24px;
+    animation: fadeUp 0.4s ease both; animation-delay: 0.25s;
+  }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .card-title { font-size: 14px; font-weight: 600; color: var(--text); }
+  .card-title-sub { font-size: 12px; color: var(--muted); margin-top: 2px; font-weight: 400; }
+  .pill {
+    font-size: 11px; padding: 4px 10px; border-radius: 20px;
+    background: rgba(255,255,255,0.05); color: var(--muted);
+    border: 1px solid var(--border); cursor: pointer; transition: all 0.15s;
+  }
+  .pill:hover, .pill.active { background: rgba(200,240,100,0.1); color: var(--accent); border-color: rgba(200,240,100,0.2); }
+
+  /* Categorías */
+  .cat-list { display: flex; flex-direction: column; gap: 14px; }
+  .cat-row { display: grid; grid-template-columns: 130px 1fr 80px; align-items: center; gap: 12px; }
+  .cat-name { font-size: 13px; color: var(--text); display: flex; align-items: center; gap: 7px; }
+  .cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .cat-bar-track { height: 6px; background: var(--muted2); border-radius: 6px; overflow: hidden; }
+  .cat-bar-fill { height: 100%; border-radius: 6px; transition: width 1.2s cubic-bezier(0.4,0,0.2,1); }
+  .cat-amount { font-family: var(--font-mono); font-size: 12px; color: var(--muted); text-align: right; }
+
+  /* Metas */
+  .metas-list { display: flex; flex-direction: column; gap: 16px; }
+  .meta-item { background: var(--bg3); border-radius: var(--r); padding: 16px; cursor: pointer; transition: border-color 0.15s; border: 1px solid transparent; }
+  .meta-item:hover { border-color: var(--border); }
+  .meta-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .meta-name { font-size: 13px; font-weight: 500; color: var(--text); }
+  .meta-pct { font-family: var(--font-mono); font-size: 12px; font-weight: 500; padding: 2px 8px; border-radius: 20px; }
+  .meta-amounts { font-size: 11px; color: var(--muted); margin-bottom: 8px; font-family: var(--font-mono); }
+  .meta-track { height: 5px; background: var(--muted2); border-radius: 5px; overflow: hidden; }
+  .meta-fill { height: 100%; border-radius: 5px; transition: width 1.2s cubic-bezier(0.4,0,0.2,1); }
+  .meta-deadline { font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+  /* Bottom grid */
+  .bot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  /* Movimientos */
+  .tx-list { display: flex; flex-direction: column; gap: 4px; }
+  .tx-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; cursor: pointer; transition: background 0.12s; }
+  .tx-row:hover { background: var(--bg3); }
+  .tx-icon { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; font-size: 16px; flex-shrink: 0; }
+  .tx-info { flex: 1; min-width: 0; }
+  .tx-name { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tx-date { font-size: 11px; color: var(--muted); }
+  .tx-amount { font-family: var(--font-mono); font-size: 13px; font-weight: 500; flex-shrink: 0; }
+  .tx-amount.gasto   { color: var(--danger); }
+  .tx-amount.ingreso { color: var(--accent2); }
+  .tx-tag { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: rgba(244,96,96,0.12); color: var(--danger); flex-shrink: 0; }
+  .tx-tag.extra { background: rgba(244,162,74,0.12); color: var(--accent3); }
+
+  /* Alertas */
+  .alert-list { display: flex; flex-direction: column; gap: 10px; }
+  .alert-item { display: flex; gap: 12px; align-items: flex-start; padding: 14px; border-radius: 10px; border-left: 3px solid transparent; background: var(--bg3); cursor: pointer; transition: opacity 0.15s; }
+  .alert-item:hover { opacity: 0.85; }
+  .alert-item.alta  { border-color: var(--danger); }
+  .alert-item.media { border-color: var(--accent3); }
+  .alert-item.baja  { border-color: var(--accent2); }
+  .alert-icon { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; font-size: 14px; flex-shrink: 0; }
+  .alert-icon.alta  { background: rgba(244,96,96,0.15); }
+  .alert-icon.media { background: rgba(244,162,74,0.15); }
+  .alert-icon.baja  { background: rgba(74,244,194,0.12); }
+  .alert-msg { font-size: 12px; color: var(--text); line-height: 1.5; flex: 1; }
+  .alert-time { font-size: 10px; color: var(--muted); margin-top: 3px; }
+  .alert-urgency { font-size: 10px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; padding: 2px 7px; border-radius: 20px; flex-shrink: 0; align-self: flex-start; }
+  .alert-urgency.alta  { background: rgba(244,96,96,0.15);  color: var(--danger); }
+  .alert-urgency.media { background: rgba(244,162,74,0.15); color: var(--accent3); }
+  .alert-urgency.baja  { background: rgba(74,244,194,0.12); color: var(--accent2); }
+
+  /* DSS */
+  .pred-block { display: flex; flex-direction: column; gap: 14px; }
+  .pred-main { background: var(--bg3); border-radius: var(--r); padding: 18px; display: flex; align-items: center; justify-content: space-between; }
+  .pred-label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .pred-value { font-family: var(--font-mono); font-size: 30px; font-weight: 500; color: var(--accent); letter-spacing: -1px; }
+  .pred-range { text-align: right; }
+  .pred-range-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+  .pred-range-values { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+  .pred-confidence { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(200,240,100,0.06); border-radius: 8px; border: 1px solid rgba(200,240,100,0.12); }
+  .pred-conf-label { font-size: 12px; color: var(--muted); flex: 1; }
+  .pred-conf-val { font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--accent); }
+  .pred-conf-track { width: 80px; height: 4px; background: var(--muted2); border-radius: 4px; overflow: hidden; }
+  .pred-conf-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width 1.4s ease; }
+
+  /* Gastos programados */
+  .prog-list { display: flex; flex-direction: column; gap: 8px; }
+  .prog-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-radius: 9px; background: var(--bg3); cursor: pointer; transition: background 0.12s; }
+  .prog-row:hover { background: rgba(255,255,255,0.05); }
+  .prog-left { display: flex; align-items: center; gap: 10px; }
+  .prog-status { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .prog-status.pagado   { background: var(--accent2); box-shadow: 0 0 6px var(--accent2); }
+  .prog-status.pendiente { background: var(--accent3); }
+  .prog-status.vencido  { background: var(--danger);  box-shadow: 0 0 6px var(--danger); }
+  .prog-name { font-size: 13px; color: var(--text); }
+  .prog-day  { font-size: 11px; color: var(--muted); }
+  .prog-right { text-align: right; }
+  .prog-amount { font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--text); }
+  .prog-freq { font-size: 10px; color: var(--muted); }
+
+  /* Balance */
+  .balance-row { display: flex; gap: 12px; margin-top: 12px; }
+  .balance-block { flex: 1; background: var(--bg3); border-radius: 10px; padding: 14px; text-align: center; }
+  .balance-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  .balance-val { font-family: var(--font-mono); font-size: 18px; font-weight: 500; }
+  .balance-val.ingreso { color: var(--accent2); }
+  .balance-val.gasto   { color: var(--danger); }
+  .balance-val.neto    { color: var(--accent); }
+
+  .section-label { font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; margin-top: 4px; padding-left: 2px; }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--muted2); border-radius: 3px; }
+
+  @media (max-width: 1100px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .mid-grid, .bot-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 720px) {
+    .shell { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .topbar, .main { grid-column: 1; }
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ══════════════════════════════════════════
+     MODAL DE AÑADIR MOVIMIENTO
+  ══════════════════════════════════════════ */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(11, 14, 20, 0.85);
+    backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--bg2);
+    border: 1px solid rgba(200,240,100,0.12);
+    border-radius: 20px;
+    padding: 32px;
+    width: 100%; max-width: 480px;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(200,240,100,0.05);
+    transform: translateY(20px) scale(0.97);
+    transition: transform 0.25s cubic-bezier(0.22,1,0.36,1);
+    position: relative;
+  }
+  .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+
+  .modal-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
+  .modal-title { font-family: var(--font-head); font-size: 22px; color: var(--text); letter-spacing: -0.3px; }
+  .modal-subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .modal-close {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+    color: var(--muted); font-size: 16px; cursor: pointer;
+    display: grid; place-items: center;
+    transition: background 0.15s, color 0.15s;
+  }
+  .modal-close:hover { background: rgba(244,96,96,0.1); color: var(--danger); border-color: rgba(244,96,96,0.25); }
+
+  /* Tipo toggle */
+  .type-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+  .type-btn {
+    padding: 10px; border-radius: 10px; border: 1px solid var(--border);
+    background: transparent; color: var(--muted); font-family: var(--font-body);
+    font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .type-btn.active.gasto   { background: rgba(244,96,96,0.12); border-color: rgba(244,96,96,0.4); color: var(--danger); }
+  .type-btn.active.ingreso { background: rgba(74,244,194,0.1);  border-color: rgba(74,244,194,0.35); color: var(--accent2); }
+
+  /* Form fields */
+  .field-group { margin-bottom: 16px; }
+  .field-label {
+    display: block; font-size: 10px; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 6px;
+  }
+  .field-label span { color: var(--accent); }
+  .ff-input, .ff-select {
+    width: 100%; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 10px;
+    color: var(--text); font-family: var(--font-body); font-size: 14px;
+    padding: 10px 14px; outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .ff-input::placeholder { color: var(--muted2); }
+  .ff-input:focus, .ff-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(200,240,100,0.1);
+  }
+  .ff-select { cursor: pointer; }
+  .ff-select option { background: var(--bg2); color: var(--text); }
+
+  /* Checkbox */
+  .check-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 12px 14px; border-radius: 10px;
+    background: var(--bg3); border: 1px solid var(--border);
+    cursor: pointer; transition: border-color 0.15s;
+    margin-bottom: 16px;
+  }
+  .check-row:hover { border-color: rgba(244,162,74,0.3); }
+  .check-row input[type="checkbox"] {
+    width: 16px; height: 16px; accent-color: var(--accent3);
+    cursor: pointer; flex-shrink: 0; margin-top: 2px;
+  }
+  .check-text { font-size: 13px; color: var(--text); }
+  .check-text small { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* Nueva categoría inline */
+  .new-cat-row {
+    display: flex; gap: 8px; margin-top: 10px;
+    padding: 12px 14px; border-radius: 10px;
+    background: rgba(200,240,100,0.04);
+    border: 1px dashed rgba(200,240,100,0.2);
+  }
+  .new-cat-row input { flex: 1; }
+  .btn-cat-save {
+    padding: 8px 14px; border-radius: 8px;
+    background: var(--accent); color: #0b0e14;
+    font-family: var(--font-body); font-size: 12px; font-weight: 600;
+    border: none; cursor: pointer; white-space: nowrap;
+    transition: opacity 0.15s;
+  }
+  .btn-cat-save:hover { opacity: 0.85; }
+  .btn-cat-save:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Botón submit del modal */
+  .btn-submit {
+    width: 100%; padding: 12px;
+    background: linear-gradient(135deg, var(--accent) 0%, #a8d840 100%);
+    color: #0b0e14; font-family: var(--font-body); font-size: 14px;
+    font-weight: 600; border: none; border-radius: 10px;
+    cursor: pointer; transition: opacity 0.15s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 0 20px rgba(200,240,100,0.2);
+  }
+  .btn-submit:hover { opacity: 0.88; transform: translateY(-1px); box-shadow: 0 0 30px rgba(200,240,100,0.35); }
+  .btn-submit:active { transform: translateY(0); }
+  .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* Spinner */
+  .spinner {
+    display: inline-block; width: 13px; height: 13px;
+    border: 2px solid rgba(11,14,20,0.3);
+    border-top-color: #0b0e14;
+    border-radius: 50%; animation: spin 0.7s linear infinite;
+    vertical-align: middle; margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Alert feedback en modal */
+  .modal-alert {
+    padding: 10px 14px; border-radius: 8px;
+    font-size: 12px; margin-bottom: 16px; display: none;
+  }
+  .modal-alert.visible { display: block; }
+  .modal-alert.error   { background: rgba(244,96,96,0.08); border: 1px solid rgba(244,96,96,0.25); color: var(--danger); }
+  .modal-alert.success { background: rgba(74,244,194,0.08); border: 1px solid rgba(74,244,194,0.25); color: var(--accent2); }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 20 20" fill="none">
+          <path d="M3 14l4-5 3 3 3-4 4 6" stroke="#0b0e14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="15" cy="5" r="2.5" fill="#0b0e14"/>
+        </svg>
+      </div>
+      <span class="logo-name">Fin<span>Sight</span></span>
+    </div>
+
+    <nav class="nav-section">
+      <div class="nav-label">Principal</div>
+      <a class="nav-item active" href="#">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/>
+          <rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/>
+        </svg>
+        Dashboard
+      </a>
+      <a class="nav-item" href="#">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h12M2 4h8M2 12h10"/></svg>
+        Movimientos
+      </a>
+      <a class="nav-item" href="#">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
+        Gastos Fijos
+      </a>
+      <div class="nav-label">Finanzas</div>
+      <a class="nav-item" href="#">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v12M4 6l4-4 4 4"/></svg>
+        Ingresos
+      </a>
+      <a class="nav-item" href="#">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5"/><path d="M8 5v3M8 11v.5"/></svg>
+        Metas de Ahorro
+      </a>
+      <a class="nav-item" href="#">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12l4-5 3 3 5-7"/></svg>
+        Predicciones DSS
+      </a>
+      <div class="nav-label">Sistema</div>
+      <a class="nav-item" href="#">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2a6 6 0 100 12A6 6 0 008 2zM8 6v2l1.5 1.5"/></svg>
+        Alertas
+        <span style="margin-left:auto;background:var(--danger);color:#fff;font-size:10px;padding:1px 6px;border-radius:20px">3</span>
+      </a>
+      <a class="nav-item" href="#">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2"/></svg>
+        Configuración
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <!-- Tarjeta de usuario: nombre y avatar se inyectan desde JS -->
+      <div class="user-chip">
+        <div class="avatar" id="user-avatar">--</div>
+        <div class="user-info">
+          <div class="user-name" id="user-name">Cargando...</div>
+          <div class="user-role">Usuario · Bs. BOB</div>
+        </div>
+      </div>
+      <button class="btn-logout" id="btn-logout">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2H3a1 1 0 00-1 1v10a1 1 0 001 1h7M11 5l3 3-3 3M6 8h8"/></svg>
+        Cerrar sesión
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── TOPBAR ── -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <h1>Dashboard</h1>
+      <p>Resumen financiero · Mayo 2026</p>
+    </div>
+    <div class="topbar-right">
+      <!-- ✅ BOTÓN AÑADIR MOVIMIENTO -->
+      <button class="btn-add" id="btn-open-modal">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M8 2v12M2 8h12"/>
+        </svg>
+        Añadir movimiento
+      </button>
+      <div class="month-selector">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2" y="3" width="12" height="11" rx="2"/><path d="M2 7h12M5 1v4M11 1v4"/>
+        </svg>
+        <select id="mes-select">
+          <option>Enero 2026</option><option>Febrero 2026</option>
+          <option>Marzo 2026</option><option>Abril 2026</option>
+          <option selected>Mayo 2026</option>
+        </select>
+      </div>
+      <button class="btn-notif" title="Notificaciones">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M8 1a5 5 0 015 5v2l1.5 2.5h-13L3 8V6a5 5 0 015-5z"/><path d="M6.5 13a1.5 1.5 0 003 0"/>
+        </svg>
+        <span class="notif-badge"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ── MAIN ── -->
+  <main class="main">
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi" style="--kpi-color: var(--accent2)">
+        <div class="kpi-header"><span class="kpi-label">Ingresos esperados</span><span class="kpi-badge up">Fijo</span></div>
+        <div class="kpi-value"><span class="currency">Bs.</span>6,000</div>
+        <div class="kpi-sub">Sueldo Desarrollador · mensual</div>
+      </div>
+      <div class="kpi" style="--kpi-color: var(--danger)">
+        <div class="kpi-header"><span class="kpi-label">Gastos del mes</span><span class="kpi-badge down">+12%</span></div>
+        <div class="kpi-value"><span class="currency">Bs.</span><span id="kpi-gastos">1,961</span></div>
+        <div class="kpi-sub" id="kpi-gastos-sub">6 movimientos registrados</div>
+      </div>
+      <div class="kpi" style="--kpi-color: var(--accent)">
+        <div class="kpi-header"><span class="kpi-label">Balance neto</span><span class="kpi-badge up">+Bs.4,039</span></div>
+        <div class="kpi-value"><span class="currency">Bs.</span>4,039</div>
+        <div class="kpi-sub">Después de gastos registrados</div>
+      </div>
+      <div class="kpi" style="--kpi-color: var(--accent3)">
+        <div class="kpi-header"><span class="kpi-label">Límite mensual</span><span class="kpi-badge" id="limite-badge">49% usado</span></div>
+        <div class="kpi-value"><span class="currency">Bs.</span>4,000</div>
+        <div class="kpi-progress">
+          <div class="progress-track"><div class="progress-fill" id="limite-fill" style="width:0%"></div></div>
+          <div class="progress-labels"><span>Bs. 1,961 gastado</span><span>Bs. 2,039 libre</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MID GRID -->
+    <div class="mid-grid">
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Gasto por categoría</div><div class="card-title-sub">Mayo 2026</div></div>
+          <span class="pill active">Este mes</span>
+        </div>
+        <div class="cat-list" id="cat-list"></div>
+        <div class="balance-row">
+          <div class="balance-block"><div class="balance-label">Ingresos</div><div class="balance-val ingreso">6,000</div></div>
+          <div class="balance-block"><div class="balance-label">Gastos</div><div class="balance-val gasto">1,961</div></div>
+          <div class="balance-block"><div class="balance-label">Neto</div><div class="balance-val neto">4,039</div></div>
+        </div>
+      </div>
+      <div class="card" style="animation-delay:0.3s">
+        <div class="card-header">
+          <div><div class="card-title">Metas de ahorro</div><div class="card-title-sub">Progreso acumulado</div></div>
+          <span class="pill">+ Nueva</span>
+        </div>
+        <div class="metas-list" id="metas-list"></div>
+      </div>
+    </div>
+
+    <!-- BOTTOM GRID -->
+    <div class="bot-grid">
+      <div class="card" style="animation-delay:0.35s">
+        <div class="card-header">
+          <div><div class="card-title">Movimientos recientes</div><div class="card-title-sub">Últimos registros</div></div>
+          <span class="pill">Ver todos</span>
+        </div>
+        <div class="tx-list" id="tx-list"></div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card" style="animation-delay:0.40s">
+          <div class="card-header">
+            <div><div class="card-title">Alertas activas</div><div class="card-title-sub">Sin leer</div></div>
+            <span class="pill">Marcar leídas</span>
+          </div>
+          <div class="alert-list" id="alert-list"></div>
+        </div>
+
+        <div class="card" style="animation-delay:0.45s">
+          <div class="card-header">
+            <div><div class="card-title">Predicción DSS</div><div class="card-title-sub">Mayo 2026 · Promedio ponderado</div></div>
+          </div>
+          <div class="pred-block">
+            <div class="pred-main">
+              <div><div class="pred-label">Gasto proyectado</div><div class="pred-value">Bs. 3,500</div></div>
+              <div class="pred-range"><div class="pred-range-label">Intervalo</div><div class="pred-range-values">3,000 — 4,200</div></div>
+            </div>
+            <div class="pred-confidence">
+              <span class="pred-conf-label">Nivel de confianza</span>
+              <div class="pred-conf-track"><div class="pred-conf-fill" id="conf-fill" style="width:0%"></div></div>
+              <span class="pred-conf-val">75%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="animation-delay:0.50s">
+          <div class="card-header">
+            <div><div class="card-title">Gastos fijos</div><div class="card-title-sub">Estado del mes</div></div>
+          </div>
+          <div class="prog-list" id="prog-list"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MODAL: AÑADIR MOVIMIENTO
+══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modal-title">Nuevo movimiento</div>
+        <div class="modal-subtitle">Registra un ingreso o gasto en tu historial</div>
+      </div>
+      <button class="modal-close" id="btn-close-modal" aria-label="Cerrar">✕</button>
+    </div>
+
+    <!-- Alerta inline del modal -->
+    <div class="modal-alert" id="modal-alert"></div>
+
+    <!-- Tipo de movimiento -->
+    <div class="type-toggle">
+      <button type="button" class="type-btn active gasto" data-type="gasto" id="type-gasto">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v12M14 8l-6 6-6-6"/></svg>
+        Gasto
+      </button>
+      <button type="button" class="type-btn ingreso" data-type="ingreso" id="type-ingreso">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 14V2M2 8l6-6 6 6"/></svg>
+        Ingreso
+      </button>
+    </div>
+
+    <!-- Descripción -->
+    <div class="field-group">
+      <label class="field-label" for="mov-desc">Descripción <span>*</span></label>
+      <input id="mov-desc" type="text" class="ff-input" placeholder="Ej: Almuerzo, Pasaje, Sueldo…" required />
+    </div>
+
+    <!-- Monto -->
+    <div class="field-group">
+      <label class="field-label" for="mov-monto">Monto (Bs.) <span>*</span></label>
+      <input id="mov-monto" type="number" min="0.01" step="0.01" class="ff-input" placeholder="0.00" required />
+    </div>
+
+    <!-- Categoría -->
+    <div class="field-group">
+      <label class="field-label" for="mov-categoria">Categoría <span>*</span></label>
+      <select id="mov-categoria" class="ff-select">
+        <option value="" disabled selected>Cargando categorías…</option>
+      </select>
+
+      <!-- Panel de nueva categoría (oculto por defecto) -->
+      <div class="new-cat-row" id="new-cat-panel" style="display:none">
+        <input id="new-cat-input" type="text" class="ff-input" placeholder="Nombre de la nueva categoría" />
+        <button class="btn-cat-save" id="btn-save-cat" type="button">Guardar</button>
+      </div>
+    </div>
+
+    <!-- Checkbox gasto hormiga -->
+    <label class="check-row" for="mov-hormiga">
+      <input type="checkbox" id="mov-hormiga" />
+      <div class="check-text">
+        ¿Es un gasto ocasional / hormiga?
+        <small>Activa esto para gastos pequeños no planificados que se acumulan.</small>
+      </div>
+    </label>
+
+    <!-- Submit -->
+    <button type="button" class="btn-submit" id="btn-submit-mov">
+      Guardar movimiento
+    </button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════ -->
+<script>
+/* ──────────────────────────────────────────
+   1. CONFIGURACIÓN SUPABASE
+   ➜  Pega los valores de tu proyecto en
+      https://app.supabase.com → Settings → API
+────────────────────────────────────────── */
+const SUPABASE_URL      = 'https://smrttvjrivnsunuhtoah.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtcnR0dmpyaXZuc3VudWh0b2FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwMTk0MzYsImV4cCI6MjA5MzU5NTQzNn0.schbQxr0xKPZ7G6DZK8a_ewWQAKDUJIWKHre2YGPPQg';
+
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* ──────────────────────────────────────────
+   2. PROTECCIÓN DE RUTA
+   Al cargar el dashboard, verifica si hay
+   sesión activa. Si no, redirige al login.
+────────────────────────────────────────── */
+async function checkSession() {
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) {
+    window.location.replace('index.html');
+    return null;
+  }
+  return session;
+}
+
+/* ──────────────────────────────────────────
+   3. MOSTRAR NOMBRE DEL USUARIO ACTIVO
+   Obtiene el email/metadata del usuario y
+   actualiza el chip del sidebar.
+────────────────────────────────────────── */
+function renderUserChip(user) {
+  const email    = user.email || '';
+  // Usa el nombre del metadata si existe, si no usa la parte del email antes del @
+  const fullName = user.user_metadata?.full_name
+    || user.user_metadata?.name
+    || email.split('@')[0];
+
+  // Iniciales para el avatar (máx. 2 letras)
+  const parts    = fullName.trim().split(' ');
+  const initials = parts.length >= 2
+    ? (parts[0][0] + parts[1][0]).toUpperCase()
+    : fullName.slice(0, 2).toUpperCase();
+
+  document.getElementById('user-name').textContent   = fullName;
+  document.getElementById('user-avatar').textContent = initials;
+}
+
+/* ──────────────────────────────────────────
+   4. CERRAR SESIÓN
+────────────────────────────────────────── */
+document.getElementById('btn-logout').addEventListener('click', async () => {
+  await db.auth.signOut();
+  window.location.replace('index.html');
+});
+
+/* ──────────────────────────────────────────
+   5. LEER CATEGORÍAS DESDE SUPABASE
+   Tabla esperada: categorias
+     - id       (uuid, PK)
+     - nombre   (text)
+     - user_id  (uuid, FK → auth.users)  [opcional, para categorías personales]
+   Retorna array de objetos { id, nombre }
+────────────────────────────────────────── */
+async function fetchCategorias(userId) {
+  // Trae categorías globales (user_id IS NULL) + las del usuario actual
+  const { data, error } = await db
+    .from('categorias')
+    .select('id, nombre')
+    .or(`user_id.is.null,user_id.eq.${userId}`)
+    .order('nombre', { ascending: true });
+
+  if (error) {
+    console.error('[FinSight] Error al cargar categorías:', error.message);
+    return [];
+  }
+  return data;
+}
+
+/* ──────────────────────────────────────────
+   6. POBLAR EL <select> DE CATEGORÍAS
+   Incluye la opción especial "+ Crear nueva"
+────────────────────────────────────────── */
+async function populateCategorySelect(userId) {
+  const categorias = await fetchCategorias(userId);
+  const sel = document.getElementById('mov-categoria');
+  sel.innerHTML = '';
+
+  if (categorias.length === 0) {
+    sel.innerHTML = '<option value="" disabled selected>Sin categorías — crea una abajo</option>';
+  } else {
+    sel.innerHTML = '<option value="" disabled selected>Selecciona una categoría</option>';
+    categorias.forEach(cat => {
+      const opt = document.createElement('option');
+      opt.value       = cat.id;
+      opt.textContent = cat.nombre;
+      sel.appendChild(opt);
+    });
+  }
+
+  // Opción especial: crear nueva categoría
+  const newOpt = document.createElement('option');
+  newOpt.value       = '__nueva__';
+  newOpt.textContent = '＋ Crear nueva categoría…';
+  sel.appendChild(newOpt);
+}
+
+/* ──────────────────────────────────────────
+   7. GUARDAR NUEVA CATEGORÍA EN SUPABASE
+   Tabla: categorias
+   Inserta con el user_id del usuario activo.
+────────────────────────────────────────── */
+async function saveNuevaCategoria(nombre, userId) {
+  const { data, error } = await db
+    .from('categorias')
+    .insert([{ nombre: nombre.trim(), user_id: userId }])
+    .select('id, nombre')
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/* ──────────────────────────────────────────
+   8. GUARDAR MOVIMIENTO EN SUPABASE
+   Tabla: movimientos_diarios
+     - id           (uuid, PK auto)
+     - user_id      (uuid, FK)
+     - tipo         ('gasto' | 'ingreso')
+     - descripcion  (text)
+     - monto        (numeric)
+     - categoria_id (uuid, FK → categorias)
+     - es_hormiga   (boolean)
+     - fecha        (timestamptz, default now())
+────────────────────────────────────────── */
+async function saveMovimiento({ userId, tipo, descripcion, monto, categoriaId, esHormiga }) {
+  const { data, error } = await db
+    .from('movimientos_diarios')
+    .insert([{
+      user_id:      userId,
+      tipo,
+      descripcion:  descripcion.trim(),
+      monto:        parseFloat(monto),
+      categoria_id: categoriaId,
+      es_hormiga:   esHormiga,
+    }])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+
+/* ══════════════════════════════════════════
+   LÓGICA DEL MODAL
+══════════════════════════════════════════ */
+
+let selectedType = 'gasto'; // Estado del tipo seleccionado
+let currentUserId = null;
+
+// Abrir modal
+document.getElementById('btn-open-modal').addEventListener('click', () => {
+  document.getElementById('modal-overlay').classList.add('open');
+  clearModalAlert();
+});
+
+// Cerrar modal (botón ✕)
+document.getElementById('btn-close-modal').addEventListener('click', closeModal);
+
+// Cerrar modal al hacer clic en el fondo
+document.getElementById('modal-overlay').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+});
+
+// Cerrar con ESC
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeModal();
+});
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  resetModalForm();
+}
+
+function resetModalForm() {
+  document.getElementById('mov-desc').value    = '';
+  document.getElementById('mov-monto').value   = '';
+  document.getElementById('mov-hormiga').checked = false;
+  document.getElementById('new-cat-panel').style.display = 'none';
+  document.getElementById('new-cat-input').value = '';
+  setSelectedType('gasto');
+  clearModalAlert();
+}
+
+/* ── Toggle Gasto / Ingreso ── */
+function setSelectedType(type) {
+  selectedType = type;
+  document.querySelectorAll('.type-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.type === type);
+  });
+}
+document.getElementById('type-gasto').addEventListener('click',   () => setSelectedType('gasto'));
+document.getElementById('type-ingreso').addEventListener('click', () => setSelectedType('ingreso'));
+
+/* ── Detectar selección de "+ Crear nueva categoría" ── */
+document.getElementById('mov-categoria').addEventListener('change', function () {
+  const panel = document.getElementById('new-cat-panel');
+  panel.style.display = this.value === '__nueva__' ? 'flex' : 'none';
+});
+
+/* ── Guardar nueva categoría desde el panel inline ── */
+document.getElementById('btn-save-cat').addEventListener('click', async () => {
+  const input  = document.getElementById('new-cat-input');
+  const nombre = input.value.trim();
+  if (!nombre) return;
+
+  const btn = document.getElementById('btn-save-cat');
+  btn.disabled     = true;
+  btn.textContent  = 'Guardando…';
+
+  try {
+    const nuevaCat = await saveNuevaCategoria(nombre, currentUserId);
+
+    // Añade la nueva opción al select y la selecciona
+    const sel    = document.getElementById('mov-categoria');
+    const newOpt = document.createElement('option');
+    newOpt.value       = nuevaCat.id;
+    newOpt.textContent = nuevaCat.nombre;
+    // Inserta antes de la opción "+ Crear nueva"
+    const lastOpt = sel.querySelector('option[value="__nueva__"]');
+    sel.insertBefore(newOpt, lastOpt);
+    sel.value = nuevaCat.id;
+
+    // Oculta el panel
+    document.getElementById('new-cat-panel').style.display = 'none';
+    input.value = '';
+    showModalAlert('✅ Categoría "' + nuevaCat.nombre + '" creada con éxito.', 'success');
+  } catch (err) {
+    showModalAlert('Error al crear la categoría: ' + err.message, 'error');
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = 'Guardar';
+  }
+});
+
+/* ── Submit del movimiento ── */
+document.getElementById('btn-submit-mov').addEventListener('click', async () => {
+  clearModalAlert();
+
+  const descripcion  = document.getElementById('mov-desc').value.trim();
+  const monto        = document.getElementById('mov-monto').value;
+  const categoriaId  = document.getElementById('mov-categoria').value;
+  const esHormiga    = document.getElementById('mov-hormiga').checked;
+
+  // Validaciones
+  if (!descripcion) { showModalAlert('La descripción es obligatoria.', 'error'); return; }
+  if (!monto || parseFloat(monto) <= 0) { showModalAlert('Ingresa un monto válido mayor a 0.', 'error'); return; }
+  if (!categoriaId || categoriaId === '__nueva__') { showModalAlert('Selecciona o crea una categoría.', 'error'); return; }
+
+  const btn = document.getElementById('btn-submit-mov');
+  btn.disabled   = true;
+  btn.innerHTML  = '<span class="spinner"></span>Guardando…';
+
+  try {
+    await saveMovimiento({
+      userId:      currentUserId,
+      tipo:        selectedType,
+      descripcion,
+      monto,
+      categoriaId,
+      esHormiga,
+    });
+
+    showModalAlert('✅ Movimiento registrado con éxito.', 'success');
+
+    // Refresca la lista de movimientos en el dashboard
+    await refreshMovimientos();
+
+    setTimeout(closeModal, 1200);
+  } catch (err) {
+    showModalAlert('Error al guardar: ' + err.message, 'error');
+  } finally {
+    btn.disabled  = false;
+    btn.textContent = 'Guardar movimiento';
+  }
+});
+
+/* ── Helpers de alerta del modal ── */
+function showModalAlert(msg, type = 'error') {
+  const el = document.getElementById('modal-alert');
+  el.textContent = msg;
+  el.className   = `modal-alert visible ${type}`;
+}
+function clearModalAlert() {
+  document.getElementById('modal-alert').className = 'modal-alert';
+}
+
+
+/* ══════════════════════════════════════════
+   RENDER DE DATOS ESTÁTICOS (demo)
+   En producción estos también vendrían de Supabase
+══════════════════════════════════════════ */
+const DEMO = {
+  categorias: [
+    { nombre: 'Alimentación', monto: 1528, max: 2000, color: '#f46060' },
+    { nombre: 'Transporte',   monto: 280,  max: 500,  color: '#f4a24a' },
+    { nombre: 'Educación',    monto: 1800, max: 1800, color: '#4ab4f4' },
+    { nombre: 'Servicios',    monto: 350,  max: 400,  color: '#c8f064' },
+    { nombre: 'Salud',        monto: 0,    max: 450,  color: '#b07af4' },
+  ],
+  metas: [
+    { nombre: 'Nueva GPU',        objetivo: 4000, actual: 800, limite: 'Dic 2026', color: '#c8f064' },
+    { nombre: 'Viaje Copacabana', objetivo: 1500, actual: 600, limite: 'Ago 2026', color: '#4af4c2' },
+  ],
+  alertas: [
+    { msg: 'El almuerzo subió de Bs. 30 a Bs. 45 — variación del 50%', urgencia: 'alta',  icono: '⚡', tiempo: 'Hace 2 horas' },
+    { msg: 'Vas al 53% del límite mensual de Bs. 4,000', urgencia: 'media', icono: '📊', tiempo: 'Hoy' },
+    { msg: 'Te falta Bs. 900 para tu meta: Viaje Copacabana', urgencia: 'baja',  icono: '🎯', tiempo: 'Ayer' },
+  ],
+  gastosFijos: [
+    { nombre: 'Plan Tigo Internet', dia: 5,  monto: 350.00,  estado: 'pagado',    freq: 'Mensual' },
+    { nombre: 'Pensión Unifranz',   dia: 10, monto: 1800.00, estado: 'pagado',    freq: 'Mensual' },
+    { nombre: 'Seguro Médico',      dia: 15, monto: 450.00,  estado: 'pendiente', freq: 'Mensual' },
+    { nombre: 'Alquiler Garzonier', dia: 1,  monto: 1200.00, estado: 'vencido',   freq: 'Mensual' },
+  ],
+};
+
+function renderStaticData() {
+  // Categorías
+  const catList = document.getElementById('cat-list');
+  catList.innerHTML = '';
+  DEMO.categorias.forEach(c => {
+    const pct = Math.round((c.monto / c.max) * 100);
+    catList.innerHTML += `
+      <div class="cat-row">
+        <div class="cat-name"><span class="cat-dot" style="background:${c.color}"></span>${c.nombre}</div>
+        <div class="cat-bar-track"><div class="cat-bar-fill" data-pct="${pct}" style="width:0%;background:${c.color}"></div></div>
+        <div class="cat-amount">Bs. ${c.monto.toLocaleString()}</div>
+      </div>`;
+  });
+
+  // Metas
+  const metasList = document.getElementById('metas-list');
+  metasList.innerHTML = '';
+  DEMO.metas.forEach(m => {
+    const pct = Math.round((m.actual / m.objetivo) * 100);
+    metasList.innerHTML += `
+      <div class="meta-item">
+        <div class="meta-top"><div class="meta-name">${m.nombre}</div><span class="meta-pct" style="background:${m.color}18;color:${m.color}">${pct}%</span></div>
+        <div class="meta-amounts">Bs. ${m.actual.toLocaleString()} de Bs. ${m.objetivo.toLocaleString()}</div>
+        <div class="meta-track"><div class="meta-fill" data-pct="${pct}" style="width:0%;background:${m.color}"></div></div>
+        <div class="meta-deadline">📅 Límite: ${m.limite}</div>
+      </div>`;
+  });
+
+  // Alertas
+  const alertList = document.getElementById('alert-list');
+  alertList.innerHTML = '';
+  DEMO.alertas.forEach(a => {
+    alertList.innerHTML += `
+      <div class="alert-item ${a.urgencia}">
+        <div class="alert-icon ${a.urgencia}">${a.icono}</div>
+        <div style="flex:1"><div class="alert-msg">${a.msg}</div><div class="alert-time">${a.tiempo}</div></div>
+        <span class="alert-urgency ${a.urgencia}">${a.urgencia}</span>
+      </div>`;
+  });
+
+  // Gastos fijos
+  const progList = document.getElementById('prog-list');
+  progList.innerHTML = '';
+  DEMO.gastosFijos.forEach(g => {
+    const dias = { pagado: 'Pagado', pendiente: `Día ${g.dia}`, vencido: 'Vencido' };
+    progList.innerHTML += `
+      <div class="prog-row">
+        <div class="prog-left"><span class="prog-status ${g.estado}"></span><div><div class="prog-name">${g.nombre}</div><div class="prog-day">${dias[g.estado]}</div></div></div>
+        <div class="prog-right"><div class="prog-amount">Bs. ${g.monto.toLocaleString()}</div><div class="prog-freq">${g.freq}</div></div>
+      </div>`;
+  });
+}
+
+/* ──────────────────────────────────────────
+   9. LEER MOVIMIENTOS DESDE SUPABASE
+   y renderizarlos en la lista "Movimientos recientes"
+────────────────────────────────────────── */
+async function refreshMovimientos() {
+  const { data, error } = await db
+    .from('movimientos_diarios')
+    .select(`
+      id, tipo, descripcion, monto, es_hormiga, fecha,
+      categorias ( nombre )
+    `)
+    .eq('user_id', currentUserId)
+    .order('fecha', { ascending: false })
+    .limit(10);
+
+  if (error) {
+    console.error('[FinSight] Error al cargar movimientos:', error.message);
+    return;
+  }
+
+  const txList = document.getElementById('tx-list');
+  txList.innerHTML = '';
+
+  if (!data || data.length === 0) {
+    txList.innerHTML = `<div style="padding:16px;text-align:center;color:var(--muted);font-size:13px">Sin movimientos aún. ¡Añade el primero!</div>`;
+    return;
+  }
+
+  data.forEach(t => {
+    const signo     = t.tipo === 'gasto' ? '−' : '+';
+    const abs       = Math.abs(t.monto).toFixed(2);
+    const catNombre = t.categorias?.nombre || 'Sin categoría';
+    const fecha     = new Date(t.fecha).toLocaleDateString('es-BO', { day: '2-digit', month: 'short' });
+    const emoji     = t.tipo === 'gasto' ? '💸' : '💰';
+    const tag       = t.es_hormiga ? `<span class="tx-tag extra">Hormiga</span>` : '';
+    txList.innerHTML += `
+      <div class="tx-row">
+        <div class="tx-icon" style="background:rgba(255,255,255,0.05)">${emoji}</div>
+        <div class="tx-info">
+          <div class="tx-name">${t.descripcion}</div>
+          <div class="tx-date">${catNombre} · ${fecha}</div>
+        </div>
+        ${tag}
+        <div class="tx-amount ${t.tipo}">${signo} Bs. ${abs}</div>
+      </div>`;
+  });
+}
+
+/* ══════════════════════════════════════════
+   ANIMACIONES DE BARRAS
+══════════════════════════════════════════ */
+function animateBars() {
+  document.querySelectorAll('.cat-bar-fill').forEach(el => {
+    setTimeout(() => { el.style.width = el.dataset.pct + '%'; }, 200);
+  });
+  document.querySelectorAll('.meta-fill').forEach(el => {
+    setTimeout(() => { el.style.width = el.dataset.pct + '%'; }, 400);
+  });
+  setTimeout(() => {
+    const fill = document.getElementById('limite-fill');
+    fill.style.width  = '49%';
+    fill.className    = 'progress-fill warn';
+    document.getElementById('limite-badge').textContent = '49% usado';
+    document.getElementById('limite-badge').className   = 'kpi-badge';
+  }, 300);
+  setTimeout(() => {
+    document.getElementById('conf-fill').style.width = '75%';
+  }, 600);
+}
+
+/* ══════════════════════════════════════════
+   INIT — punto de entrada principal
+══════════════════════════════════════════ */
+(async () => {
+  // 1. Verifica sesión (redirige si no hay)
+  const session = await checkSession();
+  if (!session) return;
+
+  currentUserId = session.user.id;
+
+  // 2. Muestra nombre/avatar del usuario
+  renderUserChip(session.user);
+
+  // 3. Renderiza datos estáticos de demo
+  renderStaticData();
+  animateBars();
+
+  // 4. Carga movimientos reales de Supabase
+  await refreshMovimientos();
+
+  // 5. Carga categorías en el select del modal
+  await populateCategorySelect(currentUserId);
+})();
+</script>
+</body>
+</html>
