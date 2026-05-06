@@ -900,12 +900,12 @@ async function saveMovimiento({ userId, tipo, descripcion, monto, categoriaId, e
   const { data, error } = await db
     .from('movimientos_diarios')
     .insert([{
-      id_usuario:   userId,      // SQL: id_usuario | JS: userId
-      tipo_movimiento: tipo === 'gasto' ? 'Gasto' : 'Ingreso', // SQL usa Enum 'Gasto'/'Ingreso'
-      descripcion:  descripcion.trim(),
-      monto_real:   parseFloat(monto), // SQL: monto_real | JS: monto
-      id_categoria: categoriaId,  // SQL: id_categoria | JS: categoriaId
-      es_ocasional: esHormiga,    // SQL: es_ocasional | JS: esHormiga
+      id_usuario:      userId,      // Correcto según tu SQL
+      tipo_movimiento: tipo === 'gasto' ? 'Gasto' : 'Ingreso', 
+      monto_real:      parseFloat(monto), 
+      id_categoria:    categoriaId,
+      es_ocasional:    esHormiga,
+      notas:           descripcion.trim() // <--- AQUÍ: Tu SQL usa 'notas' en lugar de 'descripcion'
     }])
     .select()
     .single();
@@ -913,7 +913,6 @@ async function saveMovimiento({ userId, tipo, descripcion, monto, categoriaId, e
   if (error) throw error;
   return data;
 }
-
 
 /* ══════════════════════════════════════════
    LÓGICA DEL MODAL
@@ -1152,10 +1151,10 @@ async function refreshMovimientos() {
     .select(`
       id_movimiento, 
       tipo_movimiento, 
-      descripcion, 
       monto_real, 
       es_ocasional, 
       fecha_hora,
+      notas, -- Usamos notas en lugar de descripcion
       categorias ( nombre_categoria )
     `)
     .eq('id_usuario', currentUserId)
@@ -1170,28 +1169,18 @@ async function refreshMovimientos() {
   const txList = document.getElementById('tx-list');
   txList.innerHTML = '';
 
-  if (!data || data.length === 0) {
-    txList.innerHTML = `<div style="padding:16px;text-align:center;color:var(--muted);font-size:13px">Sin movimientos aún.</div>`;
-    return;
-  }
-
   data.forEach(t => {
-    const esGasto  = t.tipo_movimiento === 'Gasto';
-    const signo    = esGasto ? '−' : '+';
-    const abs      = Math.abs(t.monto_real).toFixed(2);
-    const cat      = t.categorias?.nombre_categoria || 'Sin categoría';
-    const fecha    = new Date(t.fecha_hora).toLocaleDateString('es-BO', { day: '2-digit', month: 'short' });
-    const tag      = t.es_ocasional ? `<span class="tx-tag extra">Ocasional</span>` : '';
-    
+    const esGasto = t.tipo_movimiento === 'Gasto';
+    const signo   = esGasto ? '−' : '+';
+    // Cambiamos t.descripcion por t.notas que es lo que viene de la BD[cite: 2]
     txList.innerHTML += `
       <div class="tx-row">
         <div class="tx-icon" style="background:rgba(255,255,255,0.05)">${esGasto ? '💸' : '💰'}</div>
         <div class="tx-info">
-          <div class="tx-name">${t.descripcion}</div>
-          <div class="tx-date">${cat} · ${fecha}</div>
+          <div class="tx-name">${t.notas}</div> 
+          <div class="tx-date">${t.categorias?.nombre_categoria}</div>
         </div>
-        ${tag}
-        <div class="tx-amount ${esGasto ? 'gasto' : 'ingreso'}">${signo} Bs. ${abs}</div>
+        <div class="tx-amount ${esGasto ? 'gasto' : 'ingreso'}">${signo} Bs. ${t.monto_real}</div>
       </div>`;
   });
 }
