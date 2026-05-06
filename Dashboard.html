@@ -110,7 +110,6 @@
     padding: 10px 12px; border-radius: 10px;
     background: var(--bg3); cursor: pointer;
   }
-  /* Botón de cerrar sesión */
   .btn-logout {
     display: flex; align-items: center; gap: 6px;
     width: 100%; padding: 8px 12px; margin-top: 8px;
@@ -153,7 +152,6 @@
   .month-selector select { background: transparent; border: none; color: var(--text); font-family: var(--font-body); font-size: 13px; outline: none; cursor: pointer; }
   .month-selector select option { background: var(--bg3); }
 
-  /* ── BOTÓN AÑADIR (Topbar) ── */
   .btn-add {
     display: flex; align-items: center; gap: 7px;
     padding: 8px 18px; border-radius: 9px;
@@ -232,7 +230,6 @@
   }
   .pill:hover, .pill.active { background: rgba(200,240,100,0.1); color: var(--accent); border-color: rgba(200,240,100,0.2); }
 
-  /* Categorías */
   .cat-list { display: flex; flex-direction: column; gap: 14px; }
   .cat-row { display: grid; grid-template-columns: 130px 1fr 80px; align-items: center; gap: 12px; }
   .cat-name { font-size: 13px; color: var(--text); display: flex; align-items: center; gap: 7px; }
@@ -241,7 +238,6 @@
   .cat-bar-fill { height: 100%; border-radius: 6px; transition: width 1.2s cubic-bezier(0.4,0,0.2,1); }
   .cat-amount { font-family: var(--font-mono); font-size: 12px; color: var(--muted); text-align: right; }
 
-  /* Metas */
   .metas-list { display: flex; flex-direction: column; gap: 16px; }
   .meta-item { background: var(--bg3); border-radius: var(--r); padding: 16px; cursor: pointer; transition: border-color 0.15s; border: 1px solid transparent; }
   .meta-item:hover { border-color: var(--border); }
@@ -253,10 +249,8 @@
   .meta-fill { height: 100%; border-radius: 5px; transition: width 1.2s cubic-bezier(0.4,0,0.2,1); }
   .meta-deadline { font-size: 11px; color: var(--muted); margin-top: 6px; }
 
-  /* Bottom grid */
   .bot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
-  /* Movimientos */
   .tx-list { display: flex; flex-direction: column; gap: 4px; }
   .tx-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; cursor: pointer; transition: background 0.12s; }
   .tx-row:hover { background: var(--bg3); }
@@ -270,7 +264,6 @@
   .tx-tag { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: rgba(244,96,96,0.12); color: var(--danger); flex-shrink: 0; }
   .tx-tag.extra { background: rgba(244,162,74,0.12); color: var(--accent3); }
 
-  /* Alertas */
   .alert-list { display: flex; flex-direction: column; gap: 10px; }
   .alert-item { display: flex; gap: 12px; align-items: flex-start; padding: 14px; border-radius: 10px; border-left: 3px solid transparent; background: var(--bg3); cursor: pointer; transition: opacity 0.15s; }
   .alert-item:hover { opacity: 0.85; }
@@ -288,7 +281,6 @@
   .alert-urgency.media { background: rgba(244,162,74,0.15); color: var(--accent3); }
   .alert-urgency.baja  { background: rgba(74,244,194,0.12); color: var(--accent2); }
 
-  /* DSS */
   .pred-block { display: flex; flex-direction: column; gap: 14px; }
   .pred-main { background: var(--bg3); border-radius: var(--r); padding: 18px; display: flex; align-items: center; justify-content: space-between; }
   .pred-label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
@@ -302,7 +294,6 @@
   .pred-conf-track { width: 80px; height: 4px; background: var(--muted2); border-radius: 4px; overflow: hidden; }
   .pred-conf-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width 1.4s ease; }
 
-  /* Gastos programados */
   .prog-list { display: flex; flex-direction: column; gap: 8px; }
   .prog-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-radius: 9px; background: var(--bg3); cursor: pointer; transition: background 0.12s; }
   .prog-row:hover { background: rgba(255,255,255,0.05); }
@@ -317,7 +308,6 @@
   .prog-amount { font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--text); }
   .prog-freq { font-size: 10px; color: var(--muted); }
 
-  /* Balance */
   .balance-row { display: flex; gap: 12px; margin-top: 12px; }
   .balance-block { flex: 1; background: var(--bg3); border-radius: 10px; padding: 14px; text-align: center; }
   .balance-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
@@ -325,8 +315,6 @@
   .balance-val.ingreso { color: var(--accent2); }
   .balance-val.gasto   { color: var(--danger); }
   .balance-val.neto    { color: var(--accent); }
-
-  .section-label { font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; margin-top: 4px; padding-left: 2px; }
 
   ::-webkit-scrollbar { width: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -382,7 +370,6 @@
   }
   .modal-close:hover { background: rgba(244,96,96,0.1); color: var(--danger); border-color: rgba(244,96,96,0.25); }
 
-  /* Tipo toggle */
   .type-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
   .type-btn {
     padding: 10px; border-radius: 10px; border: 1px solid var(--border);
@@ -393,64 +380,46 @@
   .type-btn.active.gasto   { background: rgba(244,96,96,0.12); border-color: rgba(244,96,96,0.4); color: var(--danger); }
   .type-btn.active.ingreso { background: rgba(74,244,194,0.1);  border-color: rgba(74,244,194,0.35); color: var(--accent2); }
 
-  /* Form fields */
   .field-group { margin-bottom: 16px; }
-  .field-label {
-    display: block; font-size: 10px; font-weight: 600;
-    letter-spacing: 1px; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 6px;
-  }
+  .field-label { display: block; font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
   .field-label span { color: var(--accent); }
   .ff-input, .ff-select {
     width: 100%; background: var(--bg);
     border: 1px solid var(--border); border-radius: 10px;
     color: var(--text); font-family: var(--font-body); font-size: 14px;
-    padding: 10px 14px; outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    padding: 10px 14px; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
   }
   .ff-input::placeholder { color: var(--muted2); }
-  .ff-input:focus, .ff-select:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(200,240,100,0.1);
-  }
+  .ff-input:focus, .ff-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(200,240,100,0.1); }
   .ff-select { cursor: pointer; }
   .ff-select option { background: var(--bg2); color: var(--text); }
 
-  /* Checkbox */
   .check-row {
     display: flex; align-items: flex-start; gap: 10px;
     padding: 12px 14px; border-radius: 10px;
     background: var(--bg3); border: 1px solid var(--border);
-    cursor: pointer; transition: border-color 0.15s;
-    margin-bottom: 16px;
+    cursor: pointer; transition: border-color 0.15s; margin-bottom: 16px;
   }
   .check-row:hover { border-color: rgba(244,162,74,0.3); }
-  .check-row input[type="checkbox"] {
-    width: 16px; height: 16px; accent-color: var(--accent3);
-    cursor: pointer; flex-shrink: 0; margin-top: 2px;
-  }
+  .check-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent3); cursor: pointer; flex-shrink: 0; margin-top: 2px; }
   .check-text { font-size: 13px; color: var(--text); }
   .check-text small { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
 
-  /* Nueva categoría inline */
   .new-cat-row {
     display: flex; gap: 8px; margin-top: 10px;
     padding: 12px 14px; border-radius: 10px;
-    background: rgba(200,240,100,0.04);
-    border: 1px dashed rgba(200,240,100,0.2);
+    background: rgba(200,240,100,0.04); border: 1px dashed rgba(200,240,100,0.2);
   }
   .new-cat-row input { flex: 1; }
   .btn-cat-save {
     padding: 8px 14px; border-radius: 8px;
     background: var(--accent); color: #0b0e14;
     font-family: var(--font-body); font-size: 12px; font-weight: 600;
-    border: none; cursor: pointer; white-space: nowrap;
-    transition: opacity 0.15s;
+    border: none; cursor: pointer; white-space: nowrap; transition: opacity 0.15s;
   }
   .btn-cat-save:hover { opacity: 0.85; }
   .btn-cat-save:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  /* Botón submit del modal */
   .btn-submit {
     width: 100%; padding: 12px;
     background: linear-gradient(135deg, var(--accent) 0%, #a8d840 100%);
@@ -463,21 +432,15 @@
   .btn-submit:active { transform: translateY(0); }
   .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-  /* Spinner */
   .spinner {
     display: inline-block; width: 13px; height: 13px;
-    border: 2px solid rgba(11,14,20,0.3);
-    border-top-color: #0b0e14;
+    border: 2px solid rgba(11,14,20,0.3); border-top-color: #0b0e14;
     border-radius: 50%; animation: spin 0.7s linear infinite;
     vertical-align: middle; margin-right: 6px;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* Alert feedback en modal */
-  .modal-alert {
-    padding: 10px 14px; border-radius: 8px;
-    font-size: 12px; margin-bottom: 16px; display: none;
-  }
+  .modal-alert { padding: 10px 14px; border-radius: 8px; font-size: 12px; margin-bottom: 16px; display: none; }
   .modal-alert.visible { display: block; }
   .modal-alert.error   { background: rgba(244,96,96,0.08); border: 1px solid rgba(244,96,96,0.25); color: var(--danger); }
   .modal-alert.success { background: rgba(74,244,194,0.08); border: 1px solid rgba(74,244,194,0.25); color: var(--accent2); }
@@ -541,7 +504,6 @@
     </nav>
 
     <div class="sidebar-bottom">
-      <!-- Tarjeta de usuario: nombre y avatar se inyectan desde JS -->
       <div class="user-chip">
         <div class="avatar" id="user-avatar">--</div>
         <div class="user-info">
@@ -563,7 +525,6 @@
       <p>Resumen financiero · Mayo 2026</p>
     </div>
     <div class="topbar-right">
-      <!-- ✅ BOTÓN AÑADIR MOVIMIENTO -->
       <button class="btn-add" id="btn-open-modal">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5">
           <path d="M8 2v12M2 8h12"/>
@@ -600,17 +561,17 @@
         <div class="kpi-sub">Sueldo Desarrollador · mensual</div>
       </div>
       <div class="kpi" style="--kpi-color: var(--danger)">
-        <div class="kpi-header"><span class="kpi-label">Gastos del mes</span><span class="kpi-badge down">+12%</span></div>
-        <div class="kpi-value"><span class="currency">Bs.</span><span id="kpi-gastos">1,961</span></div>
-        <div class="kpi-sub" id="kpi-gastos-sub">6 movimientos registrados</div>
+        <div class="kpi-header"><span class="kpi-label">Gastos del mes</span><span class="kpi-badge down">Real</span></div>
+        <div class="kpi-value"><span class="currency">Bs.</span><span id="kpi-gastos">0</span></div>
+        <div class="kpi-sub" id="kpi-gastos-sub">Cálculo dinámico</div>
       </div>
       <div class="kpi" style="--kpi-color: var(--accent)">
-        <div class="kpi-header"><span class="kpi-label">Balance neto</span><span class="kpi-badge up">+Bs.4,039</span></div>
-        <div class="kpi-value"><span class="currency">Bs.</span>4,039</div>
+        <div class="kpi-header"><span class="kpi-label">Balance neto</span><span class="kpi-badge up">Real</span></div>
+        <div class="kpi-value"><span class="currency">Bs.</span>0</div>
         <div class="kpi-sub">Después de gastos registrados</div>
       </div>
       <div class="kpi" style="--kpi-color: var(--accent3)">
-        <div class="kpi-header"><span class="kpi-label">Límite mensual</span><span class="kpi-badge" id="limite-badge">49% usado</span></div>
+        <div class="kpi-header"><span class="kpi-label">Límite mensual</span><span class="kpi-badge" id="limite-badge">Demo</span></div>
         <div class="kpi-value"><span class="currency">Bs.</span>4,000</div>
         <div class="kpi-progress">
           <div class="progress-track"><div class="progress-fill" id="limite-fill" style="width:0%"></div></div>
@@ -623,14 +584,14 @@
     <div class="mid-grid">
       <div class="card">
         <div class="card-header">
-          <div><div class="card-title">Gasto por categoría</div><div class="card-title-sub">Mayo 2026</div></div>
+          <div><div class="card-title">Gasto por categoría</div><div class="card-title-sub">Demo de interfaz</div></div>
           <span class="pill active">Este mes</span>
         </div>
         <div class="cat-list" id="cat-list"></div>
         <div class="balance-row">
-          <div class="balance-block"><div class="balance-label">Ingresos</div><div class="balance-val ingreso">6,000</div></div>
-          <div class="balance-block"><div class="balance-label">Gastos</div><div class="balance-val gasto">1,961</div></div>
-          <div class="balance-block"><div class="balance-label">Neto</div><div class="balance-val neto">4,039</div></div>
+          <div class="balance-block"><div class="balance-label">Ingresos</div><div class="balance-val ingreso">0</div></div>
+          <div class="balance-block"><div class="balance-label">Gastos</div><div class="balance-val gasto">0</div></div>
+          <div class="balance-block"><div class="balance-label">Neto</div><div class="balance-val neto">0</div></div>
         </div>
       </div>
       <div class="card" style="animation-delay:0.3s">
@@ -646,7 +607,7 @@
     <div class="bot-grid">
       <div class="card" style="animation-delay:0.35s">
         <div class="card-header">
-          <div><div class="card-title">Movimientos recientes</div><div class="card-title-sub">Últimos registros</div></div>
+          <div><div class="card-title">Movimientos recientes</div><div class="card-title-sub">Últimos registros reales</div></div>
           <span class="pill">Ver todos</span>
         </div>
         <div class="tx-list" id="tx-list"></div>
@@ -703,10 +664,8 @@
       <button class="modal-close" id="btn-close-modal" aria-label="Cerrar">✕</button>
     </div>
 
-    <!-- Alerta inline del modal -->
     <div class="modal-alert" id="modal-alert"></div>
 
-    <!-- Tipo de movimiento -->
     <div class="type-toggle">
       <button type="button" class="type-btn active gasto" data-type="gasto" id="type-gasto">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v12M14 8l-6 6-6-6"/></svg>
@@ -718,69 +677,52 @@
       </button>
     </div>
 
-    <!-- Descripción -->
     <div class="field-group">
       <label class="field-label" for="mov-desc">Descripción <span>*</span></label>
       <input id="mov-desc" type="text" class="ff-input" placeholder="Ej: Almuerzo, Pasaje, Sueldo…" required />
     </div>
 
-    <!-- Monto -->
     <div class="field-group">
       <label class="field-label" for="mov-monto">Monto (Bs.) <span>*</span></label>
       <input id="mov-monto" type="number" min="0.01" step="0.01" class="ff-input" placeholder="0.00" required />
     </div>
 
-    <!-- Categoría -->
     <div class="field-group">
       <label class="field-label" for="mov-categoria">Categoría <span>*</span></label>
       <select id="mov-categoria" class="ff-select">
         <option value="" disabled selected>Cargando categorías…</option>
       </select>
-
-      <!-- Panel de nueva categoría (oculto por defecto) -->
       <div class="new-cat-row" id="new-cat-panel" style="display:none">
         <input id="new-cat-input" type="text" class="ff-input" placeholder="Nombre de la nueva categoría" />
         <button class="btn-cat-save" id="btn-save-cat" type="button">Guardar</button>
       </div>
     </div>
 
-    <!-- Checkbox gasto hormiga -->
     <label class="check-row" for="mov-hormiga">
       <input type="checkbox" id="mov-hormiga" />
       <div class="check-text">
         ¿Es un gasto ocasional / hormiga?
-        <small>Activa esto para gastos pequeños no planificados que se acumulan.</small>
+        <small>Activa esto para gastos pequeños no planificados.</small>
       </div>
     </label>
 
-    <!-- Submit -->
     <button type="button" class="btn-submit" id="btn-submit-mov">
       Guardar movimiento
     </button>
   </div>
 </div>
 
-
-<!-- ══════════════════════════════════════════
-     JAVASCRIPT
-══════════════════════════════════════════ -->
 <script>
 /* ──────────────────────────────────────────
    1. CONFIGURACIÓN SUPABASE
-   ➜  Pega los valores de tu proyecto en
-      https://app.supabase.com → Settings → API
 ────────────────────────────────────────── */
 const SUPABASE_URL      = 'https://smrttvjrivnsunuhtoah.supabase.co';
+// IMPORTANTE: Ya está borrada la letra "T" del inicio.
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtcnR0dmpyaXZuc3VudWh0b2FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwMTk0MzYsImV4cCI6MjA5MzU5NTQzNn0.schbQxr0xKPZ7G6DZK8a_ewWQAKDUJIWKHre2YGPPQg';
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-/* ──────────────────────────────────────────
-   2. PROTECCIÓN DE RUTA
-   Al cargar el dashboard, verifica si hay
-   sesión activa. Si no, redirige al login.
-────────────────────────────────────────── */
 async function checkSession() {
   const { data: { session } } = await db.auth.getSession();
   if (!session) {
@@ -790,19 +732,9 @@ async function checkSession() {
   return session;
 }
 
-/* ──────────────────────────────────────────
-   3. MOSTRAR NOMBRE DEL USUARIO ACTIVO
-   Obtiene el email/metadata del usuario y
-   actualiza el chip del sidebar.
-────────────────────────────────────────── */
 function renderUserChip(user) {
   const email    = user.email || '';
-  // Usa el nombre del metadata si existe, si no usa la parte del email antes del @
-  const fullName = user.user_metadata?.full_name
-    || user.user_metadata?.name
-    || email.split('@')[0];
-
-  // Iniciales para el avatar (máx. 2 letras)
+  const fullName = user.user_metadata?.full_name || email.split('@')[0];
   const parts    = fullName.trim().split(' ');
   const initials = parts.length >= 2
     ? (parts[0][0] + parts[1][0]).toUpperCase()
@@ -812,40 +744,28 @@ function renderUserChip(user) {
   document.getElementById('user-avatar').textContent = initials;
 }
 
-/* ──────────────────────────────────────────
-   4. CERRAR SESIÓN
-────────────────────────────────────────── */
 document.getElementById('btn-logout').addEventListener('click', async () => {
   await db.auth.signOut();
   window.location.replace('index.html');
 });
 
 /* ──────────────────────────────────────────
-   5. LEER CATEGORÍAS DESDE SUPABASE
-   Tabla esperada: categorias
-     - id       (uuid, PK)
-     - nombre   (text)
-     - user_id  (uuid, FK → auth.users)  [opcional, para categorías personales]
-   Retorna array de objetos { id, nombre }
+   5. LEER CATEGORÍAS (Corregido a 16 tablas)
 ────────────────────────────────────────── */
 async function fetchCategorias(userId) {
   const { data, error } = await db
     .from('categorias')
     .select('id_categoria, nombre_categoria')
-    .or(`id_usuario.is.null,id_usuario.eq.${userId}`) // Ajustado a id_usuario
+    .or(`id_usuario.is.null,id_usuario.eq.${userId}`)
     .order('nombre_categoria', { ascending: true });
 
   if (error) {
     console.error('[FinSight] Error:', error.message);
     return [];
   }
-  // Mapeamos para mantener compatibilidad con el resto del JS de Claude
   return data.map(c => ({ id: c.id_categoria, nombre: c.nombre_categoria }));
 }
-/* ──────────────────────────────────────────
-   6. POBLAR EL <select> DE CATEGORÍAS
-   Incluye la opción especial "+ Crear nueva"
-────────────────────────────────────────── */
+
 async function populateCategorySelect(userId) {
   const categorias = await fetchCategorias(userId);
   const sel = document.getElementById('mov-categoria');
@@ -862,8 +782,6 @@ async function populateCategorySelect(userId) {
       sel.appendChild(opt);
     });
   }
-
-  // Opción especial: crear nueva categoría
   const newOpt = document.createElement('option');
   newOpt.value       = '__nueva__';
   newOpt.textContent = '＋ Crear nueva categoría…';
@@ -871,41 +789,36 @@ async function populateCategorySelect(userId) {
 }
 
 /* ──────────────────────────────────────────
-   7. GUARDAR NUEVA CATEGORÍA EN SUPABASE
-   Tabla: categorias
-   Inserta con el user_id del usuario activo.
-────────────────────────────────────────── */
-/* ──────────────────────────────────────────
-   7. GUARDAR NUEVA CATEGORÍA EN SUPABASE
+   7. GUARDAR NUEVA CATEGORÍA (Corregido)
 ────────────────────────────────────────── */
 async function saveNuevaCategoria(nombre, userId) {
   const { data, error } = await db
     .from('categorias')
     .insert([{ 
-      nombre_categoria: nombre.trim(), // <--- Cambiado de 'nombre' a 'nombre_categoria'
-      id_usuario: userId,              // <--- Cambiado de 'user_id' a 'id_usuario'
-      tipo_movimiento: selectedType === 'gasto' ? 'Gasto' : 'Ingreso' // Requerido por el SQL
+      nombre_categoria: nombre.trim(),
+      id_usuario: userId,
+      tipo_movimiento: selectedType === 'gasto' ? 'Gasto' : 'Ingreso'
     }])
-    .select('id_categoria, nombre_categoria') // <--- Ajustado a los nombres del SQL
+    .select('id_categoria, nombre_categoria')
     .single();
 
   if (error) throw error;
-  return { id: data.id_categoria, nombre: data.nombre_categoria }; // Mapeo para que el resto del código no falle
+  return { id: data.id_categoria, nombre: data.nombre_categoria };
 }
 
 /* ──────────────────────────────────────────
-   8. GUARDAR MOVIMIENTO EN SUPABASE
+   8. GUARDAR MOVIMIENTO (Corregido)
 ────────────────────────────────────────── */
 async function saveMovimiento({ userId, tipo, descripcion, monto, categoriaId, esHormiga }) {
   const { data, error } = await db
     .from('movimientos_diarios')
     .insert([{
-      id_usuario:      userId,      // Correcto según tu SQL
-      tipo_movimiento: tipo === 'gasto' ? 'Gasto' : 'Ingreso', 
-      monto_real:      parseFloat(monto), 
+      id_usuario:      userId,
+      tipo_movimiento: tipo === 'gasto' ? 'Gasto' : 'Ingreso',
+      monto_real:      parseFloat(monto),
       id_categoria:    categoriaId,
       es_ocasional:    esHormiga,
-      notas:           descripcion.trim() // <--- AQUÍ: Tu SQL usa 'notas' en lugar de 'descripcion'
+      notas:           descripcion.trim()
     }])
     .select()
     .single();
@@ -914,28 +827,17 @@ async function saveMovimiento({ userId, tipo, descripcion, monto, categoriaId, e
   return data;
 }
 
-/* ══════════════════════════════════════════
-   LÓGICA DEL MODAL
-══════════════════════════════════════════ */
-
-let selectedType = 'gasto'; // Estado del tipo seleccionado
+let selectedType = 'gasto';
 let currentUserId = null;
 
-// Abrir modal
 document.getElementById('btn-open-modal').addEventListener('click', () => {
   document.getElementById('modal-overlay').classList.add('open');
   clearModalAlert();
 });
-
-// Cerrar modal (botón ✕)
 document.getElementById('btn-close-modal').addEventListener('click', closeModal);
-
-// Cerrar modal al hacer clic en el fondo
 document.getElementById('modal-overlay').addEventListener('click', (e) => {
   if (e.target === document.getElementById('modal-overlay')) closeModal();
 });
-
-// Cerrar con ESC
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeModal();
 });
@@ -955,7 +857,6 @@ function resetModalForm() {
   clearModalAlert();
 }
 
-/* ── Toggle Gasto / Ingreso ── */
 function setSelectedType(type) {
   selectedType = type;
   document.querySelectorAll('.type-btn').forEach(btn => {
@@ -965,13 +866,11 @@ function setSelectedType(type) {
 document.getElementById('type-gasto').addEventListener('click',   () => setSelectedType('gasto'));
 document.getElementById('type-ingreso').addEventListener('click', () => setSelectedType('ingreso'));
 
-/* ── Detectar selección de "+ Crear nueva categoría" ── */
 document.getElementById('mov-categoria').addEventListener('change', function () {
   const panel = document.getElementById('new-cat-panel');
   panel.style.display = this.value === '__nueva__' ? 'flex' : 'none';
 });
 
-/* ── Guardar nueva categoría desde el panel inline ── */
 document.getElementById('btn-save-cat').addEventListener('click', async () => {
   const input  = document.getElementById('new-cat-input');
   const nombre = input.value.trim();
@@ -983,18 +882,14 @@ document.getElementById('btn-save-cat').addEventListener('click', async () => {
 
   try {
     const nuevaCat = await saveNuevaCategoria(nombre, currentUserId);
-
-    // Añade la nueva opción al select y la selecciona
     const sel    = document.getElementById('mov-categoria');
     const newOpt = document.createElement('option');
     newOpt.value       = nuevaCat.id;
     newOpt.textContent = nuevaCat.nombre;
-    // Inserta antes de la opción "+ Crear nueva"
     const lastOpt = sel.querySelector('option[value="__nueva__"]');
     sel.insertBefore(newOpt, lastOpt);
     sel.value = nuevaCat.id;
 
-    // Oculta el panel
     document.getElementById('new-cat-panel').style.display = 'none';
     input.value = '';
     showModalAlert('✅ Categoría "' + nuevaCat.nombre + '" creada con éxito.', 'success');
@@ -1006,7 +901,6 @@ document.getElementById('btn-save-cat').addEventListener('click', async () => {
   }
 });
 
-/* ── Submit del movimiento ── */
 document.getElementById('btn-submit-mov').addEventListener('click', async () => {
   clearModalAlert();
 
@@ -1015,7 +909,6 @@ document.getElementById('btn-submit-mov').addEventListener('click', async () => 
   const categoriaId  = document.getElementById('mov-categoria').value;
   const esHormiga    = document.getElementById('mov-hormiga').checked;
 
-  // Validaciones
   if (!descripcion) { showModalAlert('La descripción es obligatoria.', 'error'); return; }
   if (!monto || parseFloat(monto) <= 0) { showModalAlert('Ingresa un monto válido mayor a 0.', 'error'); return; }
   if (!categoriaId || categoriaId === '__nueva__') { showModalAlert('Selecciona o crea una categoría.', 'error'); return; }
@@ -1036,8 +929,9 @@ document.getElementById('btn-submit-mov').addEventListener('click', async () => 
 
     showModalAlert('✅ Movimiento registrado con éxito.', 'success');
 
-    // Refresca la lista de movimientos en el dashboard
+    // ACTUALIZAMOS INTERFAZ
     await refreshMovimientos();
+    await updateDynamicKPIs();
 
     setTimeout(closeModal, 1200);
   } catch (err) {
@@ -1048,7 +942,6 @@ document.getElementById('btn-submit-mov').addEventListener('click', async () => 
   }
 });
 
-/* ── Helpers de alerta del modal ── */
 function showModalAlert(msg, type = 'error') {
   const el = document.getElementById('modal-alert');
   el.textContent = msg;
@@ -1058,11 +951,98 @@ function clearModalAlert() {
   document.getElementById('modal-alert').className = 'modal-alert';
 }
 
+/* ──────────────────────────────────────────
+   NUEVO: ACTUALIZAR KPIs DINÁMICAMENTE
+────────────────────────────────────────── */
+async function updateDynamicKPIs() {
+  const { data, error } = await db
+    .from('movimientos_diarios')
+    .select('monto_real, tipo_movimiento')
+    .eq('id_usuario', currentUserId);
 
-/* ══════════════════════════════════════════
-   RENDER DE DATOS ESTÁTICOS (demo)
-   En producción estos también vendrían de Supabase
-══════════════════════════════════════════ */
+  if (error) {
+    console.error('Error al calcular KPIs:', error.message);
+    return;
+  }
+
+  let totalIngresos = 0;
+  let totalGastos = 0;
+
+  data.forEach(mov => {
+    if (mov.tipo_movimiento === 'Ingreso') {
+      totalIngresos += parseFloat(mov.monto_real);
+    } else {
+      totalGastos += parseFloat(mov.monto_real);
+    }
+  });
+
+  const balanceNeto = totalIngresos - totalGastos;
+
+  const kpiGastos = document.getElementById('kpi-gastos');
+  if (kpiGastos) kpiGastos.textContent = totalGastos.toLocaleString('es-BO');
+  
+  const kpiBalance = document.querySelector('[style="--kpi-color: var(--accent)"] .kpi-value');
+  if (kpiBalance) kpiBalance.innerHTML = `<span class="currency">Bs.</span>${balanceNeto.toLocaleString('es-BO')}`;
+
+  document.querySelector('.balance-val.ingreso').textContent = totalIngresos.toLocaleString('es-BO');
+  document.querySelector('.balance-val.gasto').textContent = totalGastos.toLocaleString('es-BO');
+  document.querySelector('.balance-val.neto').textContent = balanceNeto.toLocaleString('es-BO');
+}
+
+/* ──────────────────────────────────────────
+   9. LEER MOVIMIENTOS DESDE SUPABASE (Corregido)
+────────────────────────────────────────── */
+async function refreshMovimientos() {
+  const { data, error } = await db
+    .from('movimientos_diarios')
+    .select(`
+      id_movimiento, 
+      tipo_movimiento, 
+      monto_real, 
+      es_ocasional, 
+      fecha_hora,
+      notas,
+      categorias ( nombre_categoria )
+    `)
+    .eq('id_usuario', currentUserId)
+    .order('fecha_hora', { ascending: false })
+    .limit(10);
+
+  if (error) {
+    console.error('[FinSight] Error al cargar movimientos:', error.message);
+    return;
+  }
+
+  const txList = document.getElementById('tx-list');
+  txList.innerHTML = '';
+
+  if (!data || data.length === 0) {
+    txList.innerHTML = `<div style="padding:16px;text-align:center;color:var(--muted);font-size:13px">Sin movimientos aún. ¡Añade el primero!</div>`;
+    return;
+  }
+
+  data.forEach(t => {
+    const esGasto  = t.tipo_movimiento === 'Gasto';
+    const signo    = esGasto ? '−' : '+';
+    const abs      = Math.abs(t.monto_real).toFixed(2);
+    const cat      = t.categorias?.nombre_categoria || 'Sin categoría';
+    const fecha    = new Date(t.fecha_hora).toLocaleDateString('es-BO', { day: '2-digit', month: 'short' });
+    const emoji    = esGasto ? '💸' : '💰';
+    const tag      = t.es_ocasional ? `<span class="tx-tag extra">Ocasional</span>` : '';
+    
+    txList.innerHTML += `
+      <div class="tx-row">
+        <div class="tx-icon" style="background:rgba(255,255,255,0.05)">${emoji}</div>
+        <div class="tx-info">
+          <div class="tx-name">${t.notas}</div>
+          <div class="tx-date">${cat} · ${fecha}</div>
+        </div>
+        ${tag}
+        <div class="tx-amount ${esGasto ? 'gasto' : 'ingreso'}">${signo} Bs. ${abs}</div>
+      </div>`;
+  });
+}
+
 const DEMO = {
   categorias: [
     { nombre: 'Alimentación', monto: 1528, max: 2000, color: '#f46060' },
@@ -1089,7 +1069,6 @@ const DEMO = {
 };
 
 function renderStaticData() {
-  // Categorías
   const catList = document.getElementById('cat-list');
   catList.innerHTML = '';
   DEMO.categorias.forEach(c => {
@@ -1102,7 +1081,6 @@ function renderStaticData() {
       </div>`;
   });
 
-  // Metas
   const metasList = document.getElementById('metas-list');
   metasList.innerHTML = '';
   DEMO.metas.forEach(m => {
@@ -1116,7 +1094,6 @@ function renderStaticData() {
       </div>`;
   });
 
-  // Alertas
   const alertList = document.getElementById('alert-list');
   alertList.innerHTML = '';
   DEMO.alertas.forEach(a => {
@@ -1128,7 +1105,6 @@ function renderStaticData() {
       </div>`;
   });
 
-  // Gastos fijos
   const progList = document.getElementById('prog-list');
   progList.innerHTML = '';
   DEMO.gastosFijos.forEach(g => {
@@ -1141,53 +1117,6 @@ function renderStaticData() {
   });
 }
 
-/* ──────────────────────────────────────────
-   9. LEER MOVIMIENTOS DESDE SUPABASE
-   y renderizarlos en la lista "Movimientos recientes"
-────────────────────────────────────────── */
-async function refreshMovimientos() {
-  const { data, error } = await db
-    .from('movimientos_diarios')
-    .select(`
-      id_movimiento, 
-      tipo_movimiento, 
-      monto_real, 
-      es_ocasional, 
-      fecha_hora,
-      notas, -- Usamos notas en lugar de descripcion
-      categorias ( nombre_categoria )
-    `)
-    .eq('id_usuario', currentUserId)
-    .order('fecha_hora', { ascending: false })
-    .limit(10);
-
-  if (error) {
-    console.error('[FinSight] Error:', error.message);
-    return;
-  }
-
-  const txList = document.getElementById('tx-list');
-  txList.innerHTML = '';
-
-  data.forEach(t => {
-    const esGasto = t.tipo_movimiento === 'Gasto';
-    const signo   = esGasto ? '−' : '+';
-    // Cambiamos t.descripcion por t.notas que es lo que viene de la BD[cite: 2]
-    txList.innerHTML += `
-      <div class="tx-row">
-        <div class="tx-icon" style="background:rgba(255,255,255,0.05)">${esGasto ? '💸' : '💰'}</div>
-        <div class="tx-info">
-          <div class="tx-name">${t.notas}</div> 
-          <div class="tx-date">${t.categorias?.nombre_categoria}</div>
-        </div>
-        <div class="tx-amount ${esGasto ? 'gasto' : 'ingreso'}">${signo} Bs. ${t.monto_real}</div>
-      </div>`;
-  });
-}
-
-/* ══════════════════════════════════════════
-   ANIMACIONES DE BARRAS
-══════════════════════════════════════════ */
 function animateBars() {
   document.querySelectorAll('.cat-bar-fill').forEach(el => {
     setTimeout(() => { el.style.width = el.dataset.pct + '%'; }, 200);
@@ -1207,68 +1136,23 @@ function animateBars() {
   }, 600);
 }
 
-
-
-async function updateDynamicKPIs() {
-  const { data, error } = await db
-    .from('movimientos_diarios')
-    .select('monto_real, tipo_movimiento')
-    .eq('id_usuario', currentUserId); // Usa id_usuario como definimos en el SQL de 16 tablas
-
-  if (error) {
-    console.error('Error al calcular KPIs:', error.message);
-    return;
-  }
-
-  let totalIngresos = 0;
-  let totalGastos = 0;
-
-  data.forEach(mov => {
-    if (mov.tipo_movimiento === 'Ingreso') {
-      totalIngresos += parseFloat(mov.monto_real);
-    } else {
-      totalGastos += parseFloat(mov.monto_real);
-    }
-  });
-
-  const balanceNeto = totalIngresos - totalGastos;
-
-  // Actualizar los textos en el HTML
-  // Nota: Asegúrate de que los IDs coincidan con los de tus tarjetas KPI
-  document.getElementById('kpi-gastos').textContent = totalGastos.toLocaleString('es-BO');
-  document.querySelector('[style="--kpi-color: var(--accent)"] .kpi-value').innerHTML = 
-    `<span class="currency">Bs.</span>${balanceNeto.toLocaleString('es-BO')}`;
-  
-  // Actualizar los bloques de balance de la tarjeta central
-  document.querySelector('.balance-val.ingreso').textContent = totalIngresos.toLocaleString('es-BO');
-  document.querySelector('.balance-val.gasto').textContent = totalGastos.toLocaleString('es-BO');
-  document.querySelector('.balance-val.neto').textContent = balanceNeto.toLocaleString('es-BO');
-}
 /* ══════════════════════════════════════════
    INIT — punto de entrada principal
 ══════════════════════════════════════════ */
 (async () => {
-  // 1. Verifica sesión (redirige si no hay)
   const session = await checkSession();
   if (!session) return;
 
   currentUserId = session.user.id;
 
-  // 2. Muestra nombre/avatar del usuario
   renderUserChip(session.user);
-
-  // 3. Renderiza datos estáticos de demo
   renderStaticData();
-  await updateDynamicKPIs(); // Calcula el saldo real
-  await refreshMovimientos(); // Muestra la lista real
-  await populateCategorySelect(currentUserId);
-  animateBars();
 
-  // 4. Carga movimientos reales de Supabase
+  await updateDynamicKPIs();
   await refreshMovimientos();
-
-  // 5. Carga categorías en el select del modal
   await populateCategorySelect(currentUserId);
+
+  animateBars();
 })();
 </script>
 </body>
