@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinSight — Acceso</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:      #0b0e14; --bg2: #111520; --bg3: #181e2e; --card: #161b28;
+      --border:  rgba(255,255,255,0.07);
+      --accent:  #c8f064; --accent2: #4af4c2; --accent3: #f4a24a; --danger: #f46060;
+      --text:    #e8ecf5; --muted: #6b7494; --muted2: #3d4460;
+    }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      padding: 20px; overflow-x: hidden;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image:
+        radial-gradient(ellipse 70% 50% at 15% -5%,  rgba(200,240,100,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 90% 105%, rgba(74,244,194,0.06)  0%, transparent 55%),
+        linear-gradient(rgba(200,240,100,0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(200,240,100,0.018) 1px, transparent 1px);
+      background-size: auto, auto, 48px 48px, 48px 48px;
+      pointer-events: none; z-index: 0;
+    }
+    .page-wrap {
+      position: relative; z-index: 1;
+      display: grid; grid-template-columns: 1fr 420px;
+      gap: 56px; width: 100%; max-width: 900px; align-items: center;
+    }
+    /* ── Branding ── */
+    .brand-panel { padding: 8px 0; }
+    .logo-badge { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 36px; }
+    .logo-icon {
+      width: 40px; height: 40px; background: var(--accent); border-radius: 11px;
+      display: grid; place-items: center; box-shadow: 0 0 22px rgba(200,240,100,0.3);
+    }
+    .logo-icon svg { width: 22px; height: 22px; }
+    .logo-name { font-family: 'DM Serif Display', serif; font-size: 24px; color: var(--text); letter-spacing: -0.5px; }
+    .logo-name span { color: var(--accent); }
+    .brand-headline { font-family: 'DM Serif Display', serif; font-size: 44px; line-height: 1.15; color: var(--text); letter-spacing: -1px; margin-bottom: 18px; }
+    .brand-headline em { color: var(--accent); font-style: normal; }
+    .brand-desc { font-size: 14px; color: var(--muted); line-height: 1.75; margin-bottom: 36px; max-width: 340px; }
+    .features { display: flex; flex-direction: column; gap: 16px; }
+    .feature-item { display: flex; align-items: flex-start; gap: 12px; }
+    .feature-dot { width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0; display: grid; place-items: center; font-size: 14px; margin-top: 1px; }
+    .feature-dot.g { background: rgba(200,240,100,0.12); }
+    .feature-dot.t { background: rgba(74,244,194,0.1);  }
+    .feature-dot.o { background: rgba(244,162,74,0.1);  }
+    .feature-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .feature-desc  { font-size: 12px; color: var(--muted); }
+    /* ── Card ── */
+    .login-card {
+      background: var(--card);
+      border: 1px solid rgba(200,240,100,0.1);
+      border-radius: 20px; padding: 36px 32px;
+      box-shadow: 0 0 0 1px rgba(200,240,100,0.04), 0 40px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
+      animation: slideUp 0.55s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    @keyframes slideUp { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
+    .card-header { margin-bottom: 28px; }
+    .card-title { font-family: 'DM Serif Display', serif; font-size: 24px; color: var(--text); letter-spacing: -0.3px; margin-bottom: 4px; }
+    .card-subtitle { font-size: 13px; color: var(--muted); }
+    /* ── Fields ── */
+    .field-group { margin-bottom: 16px; }
+    .field-label { display: block; font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; font-family: 'DM Mono', monospace; }
+    .field-label span { color: var(--accent); }
+    .ff-input {
+      width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+      color: var(--text); font-family: 'Outfit', sans-serif; font-size: 14px;
+      padding: 11px 14px; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .ff-input::placeholder { color: var(--muted2); }
+    .ff-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(200,240,100,0.1); }
+    .input-wrap { position: relative; }
+    .input-wrap .ff-input { padding-right: 52px; }
+    .btn-eye { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.08em; cursor: pointer; transition: color 0.15s; padding: 4px; }
+    .btn-eye:hover { color: var(--accent); }
+    .forgot-row { display: flex; justify-content: flex-end; margin-top: -8px; margin-bottom: 20px; }
+    .btn-forgot { background: none; border: none; font-family: 'Outfit', sans-serif; font-size: 12px; color: var(--muted); cursor: pointer; transition: color 0.15s; }
+    .btn-forgot:hover { color: var(--accent2); }
+    /* ── Botones ── */
+    .btn-primary {
+      width: 100%; background: var(--accent); color: #0b0e14;
+      font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600;
+      padding: 12px; border: none; border-radius: 10px; cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 0 18px rgba(200,240,100,0.2); margin-bottom: 12px;
+    }
+    .btn-primary:hover  { opacity: 0.88; transform: translateY(-1px); box-shadow: 0 0 28px rgba(200,240,100,0.35); }
+    .btn-primary:active { transform: translateY(0); opacity: 1; }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .btn-secondary {
+      width: 100%; background: transparent; color: var(--accent2);
+      font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500;
+      padding: 11px; border: 1px solid var(--border); border-radius: 10px;
+      cursor: pointer; transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    }
+    .btn-secondary:hover { background: rgba(74,244,194,0.06); border-color: rgba(74,244,194,0.3); transform: translateY(-1px); }
+    .btn-secondary:active { transform: translateY(0); }
+    /* ── Divider ── */
+    .divider { display: flex; align-items: center; gap: 10px; color: var(--muted2); font-size: 11px; letter-spacing: 0.1em; margin: 16px 0; font-family: 'DM Mono', monospace; }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    /* ── Alerta ── */
+    .alert { border-radius: 8px; padding: 10px 14px; font-size: 12px; display: none; margin-bottom: 16px; line-height: 1.5; }
+    .alert.visible { display: block; animation: fadeIn 0.2s ease; }
+    .alert.error   { background: rgba(244,96,96,0.08);  border: 1px solid rgba(244,96,96,0.25);  color: var(--danger); }
+    .alert.success { background: rgba(74,244,194,0.08); border: 1px solid rgba(74,244,194,0.25); color: var(--accent2); }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+    .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(11,14,20,0.3); border-top-color: #0b0e14; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .card-footer { margin-top: 22px; text-align: center; font-size: 11px; color: var(--muted); line-height: 1.7; }
+    .card-footer a { color: var(--accent); text-decoration: none; }
+    .card-footer a:hover { text-decoration: underline; }
+    @media (max-width: 768px) {
+      .page-wrap { grid-template-columns: 1fr; gap: 28px; }
+      .brand-panel { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- ── Branding izquierdo ── -->
+  <div class="brand-panel">
+    <div class="logo-badge">
+      <div class="logo-icon">
+        <svg viewBox="0 0 20 20" fill="none">
+          <path d="M3 14l4-5 3 3 3-4 4 6" stroke="#0b0e14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="15" cy="5" r="2.5" fill="#0b0e14"/>
+        </svg>
+      </div>
+      <span class="logo-name">Fin<span>Sight</span></span>
+    </div>
+    <h1 class="brand-headline">Tu dinero,<br/><em>bajo control total</em>.</h1>
+    <p class="brand-desc">FinSight transforma tus gastos diarios en decisiones inteligentes. Visualiza, analiza y predice tu futuro financiero desde un solo lugar.</p>
+    <div class="features">
+      <div class="feature-item">
+        <div class="feature-dot g">📊</div>
+        <div><div class="feature-title">Dashboard en tiempo real</div><div class="feature-desc">Resumen de ingresos, gastos y balance neto.</div></div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot t">🐜</div>
+        <div><div class="feature-title">Detector de gastos hormiga</div><div class="feature-desc">Identifica los pequeños gastos que drenan tu presupuesto.</div></div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot o">🔮</div>
+        <div><div class="feature-title">Predicción DSS</div><div class="feature-desc">Proyecta tu gasto mensual con intervalos de confianza.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Card de login ── -->
+  <div class="login-card">
+    <div class="card-header">
+      <div class="card-title">Bienvenido de nuevo</div>
+      <div class="card-subtitle">Accede a tu dashboard financiero</div>
+    </div>
+
+    <div class="alert" id="alert-box" role="alert"></div>
+
+    <form id="login-form" novalidate>
+      <div class="field-group">
+        <label class="field-label" for="email">Correo electrónico <span>*</span></label>
+        <input id="email" type="email" class="ff-input" placeholder="tu@correo.com" autocomplete="email" required />
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="password">Contraseña <span>*</span></label>
+        <div class="input-wrap">
+          <input id="password" type="password" class="ff-input" placeholder="••••••••" autocomplete="current-password" required />
+          <button type="button" class="btn-eye" id="toggle-pass">VER</button>
+        </div>
+      </div>
+      <div class="forgot-row">
+        <button type="button" class="btn-forgot" id="btn-forgot">¿Olvidaste tu contraseña?</button>
+      </div>
+      <button type="submit" id="btn-login" class="btn-primary">Iniciar sesión</button>
+    </form>
+
+    <div class="divider">O</div>
+    <button type="button" id="btn-register" class="btn-secondary">Crear cuenta nueva</button>
+
+    <div class="card-footer">
+      Al acceder, aceptas los <a href="#">Términos de uso</a> y la <a href="#">Política de privacidad</a> de FinSight.
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showAlert(msg, type = 'error') {
+  const el = document.getElementById('alert-box');
+  el.textContent = msg; el.className = `alert visible ${type}`;
+}
+function hideAlert() { document.getElementById('alert-box').className = 'alert'; }
+function setLoading(on) {
+  const btn = document.getElementById('btn-login');
+  btn.disabled  = on;
+  btn.innerHTML = on ? '<span class="spinner"></span>Verificando…' : 'Iniciar sesión';
+}
+
+document.getElementById('toggle-pass').addEventListener('click', function () {
+  const inp = document.getElementById('password');
+  const h = inp.type === 'password';
+  inp.type = h ? 'text' : 'password';
+  this.textContent = h ? 'OC.' : 'VER';
+});
+
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+  e.preventDefault(); hideAlert();
+  const email    = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  if (!email || !password) { showAlert('Completa todos los campos.'); return; }
+  setLoading(true);
+  try {
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('password', password);
+
+    const response = await fetch('index.php?action=login', {
+      method: 'POST',
+      body: formData
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      showAlert('✅ ' + result.message + ' Redirigiendo…', 'success');
+      setTimeout(() => window.location.replace('index.php?action=dashboard'), 900);
+    } else {
+      showAlert(result.message);
+    }
+  } catch (err) {
+    showAlert('Error al conectar con el servidor.');
+  } finally { setLoading(false); }
+});
+
+document.getElementById('btn-forgot').addEventListener('click', () => {
+  showAlert('Funcionalidad de recuperación en desarrollo para versión local.');
+});
+
+document.getElementById('btn-register').addEventListener('click', () => {
+  window.location.href = 'index.php?action=register';
+});
+</script>
+</body>
+</html>
